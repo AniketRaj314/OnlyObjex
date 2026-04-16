@@ -1,3 +1,9 @@
+<p align="center">
+  <a href="https://youtu.be/l1ZxtWU0IxE?si=cvjWUkM6AaLnZe0J">
+    <img src="https://img.youtube.com/vi/l1ZxtWU0IxE/hqdefault.jpg" alt="Watch the OnlyObjex demo video" />
+  </a>
+</p>
+
 # OnlyObjex
 
 OnlyObjex turns everyday objects into witty, provocative AI-generated creator profiles.
