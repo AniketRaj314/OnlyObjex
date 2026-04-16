@@ -27,6 +27,33 @@ function LoadingDots() {
   );
 }
 
+function describeCameraError(error: unknown) {
+  if (!(error instanceof DOMException)) {
+    return "Live camera access failed here, so the browser may fall back to the normal photo picker instead.";
+  }
+
+  switch (error.name) {
+    case "NotAllowedError":
+    case "PermissionDeniedError":
+      return "Camera permission was denied for this site, so the browser fell back to the normal photo picker.";
+    case "NotFoundError":
+    case "DevicesNotFoundError":
+      return "No camera was available on this device for the browser to open.";
+    case "NotReadableError":
+    case "TrackStartError":
+      return "The camera exists, but another app or browser tab may already be using it.";
+    case "OverconstrainedError":
+    case "ConstraintNotSatisfiedError":
+      return "The browser could not satisfy the requested camera settings, so it fell back to the picker.";
+    case "SecurityError":
+      return "The browser blocked camera access for this page. Secure HTTPS pages and some mobile browsers are required.";
+    case "AbortError":
+      return "The camera request was interrupted before the stream could start.";
+    default:
+      return `Live camera access failed (${error.name}), so the browser may use the normal photo picker instead.`;
+  }
+}
+
 export function CreateFlow() {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -75,6 +102,59 @@ export function CreateFlow() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!isCameraOpen || !videoRef.current || !streamRef.current) {
+      return;
+    }
+
+    const video = videoRef.current;
+    const stream = streamRef.current;
+    let cancelled = false;
+
+    video.srcObject = stream;
+    video.muted = true;
+    video.playsInline = true;
+    video.setAttribute("playsinline", "true");
+
+    const startPlayback = async () => {
+      try {
+        await video.play();
+      } catch (error) {
+        if (!cancelled) {
+          console.error("OnlyObjex camera playback failed:", error);
+          setCameraError(
+            "The camera opened, but the live preview stayed dark. Try closing other camera apps or switching browsers.",
+          );
+        }
+      }
+    };
+
+    if (video.readyState >= 1) {
+      void startPlayback();
+    } else {
+      const handleLoadedMetadata = () => {
+        void startPlayback();
+      };
+
+      video.addEventListener("loadedmetadata", handleLoadedMetadata, {
+        once: true,
+      });
+
+      return () => {
+        cancelled = true;
+        video.removeEventListener("loadedmetadata", handleLoadedMetadata);
+        video.pause();
+        video.srcObject = null;
+      };
+    }
+
+    return () => {
+      cancelled = true;
+      video.pause();
+      video.srcObject = null;
+    };
+  }, [isCameraOpen]);
+
   const stageLabel = useMemo(() => loadingStages[stageIndex], [stageIndex]);
 
   function stopCamera() {
@@ -107,18 +187,10 @@ export function CreateFlow() {
       stopCamera();
       streamRef.current = stream;
       setIsCameraOpen(true);
-
-      requestAnimationFrame(() => {
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          void videoRef.current.play().catch(() => undefined);
-        }
-      });
-    } catch {
+    } catch (error) {
+      console.error("OnlyObjex camera open failed:", error);
       cameraInputRef.current?.click();
-      setCameraError(
-        "Live camera access was unavailable here, so your browser may use the normal photo picker instead.",
-      );
+      setCameraError(describeCameraError(error));
     } finally {
       setIsCameraLoading(false);
     }
