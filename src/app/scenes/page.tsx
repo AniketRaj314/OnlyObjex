@@ -2,12 +2,12 @@ import Link from "next/link";
 import { Film } from "lucide-react";
 import { BrandLogo } from "@/components/brand/brand-logo";
 import { SceneStudio } from "@/components/scenes/scene-studio";
-import { listAllObjex } from "@/lib/db";
+import { listPublishedObjex } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
 export default async function ScenesPage() {
-  const objexRoster = await listAllObjex();
+  const objexRoster = await listPublishedObjex();
 
   return (
     <div className="app-shell">
@@ -56,7 +56,7 @@ export default async function ScenesPage() {
               <div className="flex items-center gap-2 text-[var(--color-accent)]">
                 <Film className="h-4 w-4" />
                 <p className="text-xs font-semibold uppercase tracking-[0.2em]">
-                  Local roster
+                  Published roster
                 </p>
               </div>
               <p className="mt-2 text-3xl font-semibold text-[var(--color-text)]">
@@ -72,7 +72,7 @@ export default async function ScenesPage() {
               There are no Objex to cast yet.
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-base leading-7 text-[var(--color-text-soft)]">
-              Create at least one Objex first, then come back and give it a
+              Publish at least one Objex first, then come back and give it a
               full cinematic problem.
             </p>
             <Link

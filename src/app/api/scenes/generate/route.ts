@@ -34,10 +34,24 @@ export async function POST(request: Request) {
       );
     }
 
+    if (!primary.isPublished) {
+      return NextResponse.json(
+        { error: "Primary Objex must be published before it can star in a scene." },
+        { status: 400 },
+      );
+    }
+
     if (body.secondaryObjexId && !secondary) {
       return NextResponse.json(
         { error: "Secondary Objex not found." },
         { status: 404 },
+      );
+    }
+
+    if (secondary && !secondary.isPublished) {
+      return NextResponse.json(
+        { error: "Secondary Objex must be published before it can star in a scene." },
+        { status: 400 },
       );
     }
 
