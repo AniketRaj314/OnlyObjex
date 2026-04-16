@@ -232,6 +232,47 @@ export async function listPublishedObjex(): Promise<StoredObjex[]> {
   );
 }
 
+export async function listAllObjex(): Promise<StoredObjex[]> {
+  await initializeDatabase();
+  const db = getDatabase();
+  const rows = db
+    .prepare(
+      `
+        SELECT
+          id,
+          image_path as imagePath,
+          image_public_url as imagePublicUrl,
+          created_at as createdAt,
+          is_published as isPublished,
+          published_at as publishedAt,
+          profile_json as profileJson
+        FROM objex
+        ORDER BY created_at DESC
+      `,
+    )
+    .all() as Array<{
+    id: string;
+    imagePath: string;
+    imagePublicUrl: string;
+    createdAt: string;
+    isPublished: number;
+    publishedAt: string | null;
+    profileJson: string;
+  }>;
+
+  return rows.map((row) =>
+    storedObjexSchema.parse({
+      id: row.id,
+      imagePath: row.imagePath,
+      imagePublicUrl: row.imagePublicUrl,
+      createdAt: row.createdAt,
+      isPublished: Boolean(row.isPublished),
+      publishedAt: row.publishedAt,
+      profile: JSON.parse(row.profileJson),
+    }),
+  );
+}
+
 function parseChatMessageRow(row: {
   id: string;
   objexId: string;

@@ -41,6 +41,12 @@ export default function Home() {
               Chemistry
             </Link>
             <Link
+              href="/scenes"
+              className="rounded-full border border-[var(--color-border)] bg-white px-5 py-2.5 text-sm font-semibold text-[var(--color-text)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
+            >
+              Scenes
+            </Link>
+            <Link
               href="/create"
               className="rounded-full bg-[var(--color-accent)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--color-accent-strong)]"
             >
@@ -74,25 +80,6 @@ export default function Home() {
               >
                 <Upload className="h-4 w-4" />
                 Create Objex
-              </Link>
-              <a
-                href="#teasers"
-                className="inline-flex items-center justify-center gap-2 rounded-full border border-[var(--color-border)] bg-white px-6 py-3.5 text-base font-semibold text-[var(--color-text)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
-              >
-                <Eye className="h-4 w-4" />
-                See the vibe
-              </a>
-              <Link
-                href="/community"
-                className="inline-flex items-center justify-center rounded-full border border-[var(--color-border)] bg-white px-6 py-3.5 text-base font-semibold text-[var(--color-text)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
-              >
-                Browse community
-              </Link>
-              <Link
-                href="/chemistry"
-                className="inline-flex items-center justify-center rounded-full border border-[var(--color-border)] bg-white px-6 py-3.5 text-base font-semibold text-[var(--color-text)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
-              >
-                Start chemistry
               </Link>
             </div>
           </div>

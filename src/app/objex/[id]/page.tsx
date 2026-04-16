@@ -77,6 +77,12 @@ export default async function ObjexRevealPage({ params }: PageProps) {
               Chemistry
             </Link>
             <Link
+              href="/scenes"
+              className="rounded-full border border-[var(--color-border)] bg-white px-4 py-2 text-sm font-semibold text-[var(--color-text)]"
+            >
+              Scenes
+            </Link>
+            <Link
               href="/create"
               className="rounded-full bg-[var(--color-accent)] px-4 py-2 text-sm font-semibold text-white"
             >

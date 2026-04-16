@@ -44,6 +44,11 @@ const configuredTtsVoice = getOptionalEnv("OPENAI_TTS_VOICE");
 export const env = {
   openAiApiKey: getOptionalEnv("OPENAI_API_KEY"),
   openAiProfileModel: getOptionalEnv("OPENAI_PROFILE_MODEL") ?? "gpt-5.4",
+  openAiSceneModel:
+    getOptionalEnv("OPENAI_SCENE_MODEL") ??
+    getOptionalEnv("OPENAI_PROFILE_MODEL") ??
+    "gpt-5.4",
+  openAiVideoModel: getOptionalEnv("OPENAI_VIDEO_MODEL") ?? "sora-2",
   openAiVisionModel:
     getOptionalEnv("OPENAI_VISION_MODEL") ?? "gpt-4.1-mini",
   openAiTtsModels: uniqueValues(

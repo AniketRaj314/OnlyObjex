@@ -1,7 +1,8 @@
-import { mkdir, writeFile } from "node:fs/promises";
+import { access, mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 const uploadsDir = path.join(process.cwd(), "public", "uploads");
 const chatAudioDir = path.join(process.cwd(), "public", "chat-audio");
+const sceneVideoDir = path.join(process.cwd(), "public", "scene-videos");
 
 function extensionForMimeType(mimeType: string) {
   switch (mimeType) {
@@ -50,5 +51,32 @@ export async function saveChatAudioLocally(id: string, bytes: Buffer) {
   return {
     audioPath: absolutePath,
     audioPublicUrl: relativePath,
+  };
+}
+
+export async function getSavedSceneVideoPublicUrl(id: string) {
+  const fileName = `${id}.mp4`;
+  const absolutePath = path.join(sceneVideoDir, fileName);
+
+  try {
+    await access(absolutePath);
+
+    return `/scene-videos/${fileName}`;
+  } catch {
+    return null;
+  }
+}
+
+export async function saveSceneVideoLocally(id: string, bytes: Buffer) {
+  await mkdir(sceneVideoDir, { recursive: true });
+  const fileName = `${id}.mp4`;
+  const relativePath = `/scene-videos/${fileName}`;
+  const absolutePath = path.join(sceneVideoDir, fileName);
+
+  await writeFile(absolutePath, bytes);
+
+  return {
+    videoPath: absolutePath,
+    videoPublicUrl: relativePath,
   };
 }

@@ -70,6 +70,21 @@ export const chemistryConversationRequestSchema = z.object({
   rightObjexId: z.string().min(1),
 });
 
+export const sceneMoodModifierSchema = z.enum([
+  "darker",
+  "funnier",
+  "more chaotic",
+  "more luxurious",
+]);
+
+export const sceneGenerationRequestSchema = z.object({
+  primaryObjexId: z.string().min(1),
+  secondaryObjexId: z.string().min(1).nullable(),
+  scenarioPreset: z.string().min(2).max(80),
+  customScenarioNote: z.string().trim().max(240).optional(),
+  moodModifier: sceneMoodModifierSchema.nullable(),
+});
+
 export const chemistryParticipantSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(2).max(60),
@@ -102,11 +117,77 @@ export const chemistryConversationResponseSchema = z.object({
   turns: z.array(chemistryTurnSchema).length(6),
 });
 
+export const sceneObjectDepictionSchema = z.object({
+  primaryObjex: z.string().min(20).max(240),
+  secondaryObjex: z.string().min(20).max(240),
+});
+
+export const generatedScenePlanSchema = z.object({
+  scenePremise: z.string().min(30).max(300),
+  relationshipDynamic: z.string().min(30).max(260),
+  visualStyle: z.array(z.string().min(8).max(140)).min(3).max(5),
+  environment: z.array(z.string().min(8).max(180)).min(3).max(5),
+  objectDepiction: sceneObjectDepictionSchema,
+  cameraPlan: z.array(z.string().min(8).max(180)).min(3).max(5),
+  lightingPlan: z.array(z.string().min(8).max(180)).min(3).max(5),
+  motionPlan: z.array(z.string().min(8).max(180)).min(3).max(5),
+  soundPlan: z.array(z.string().min(8).max(180)).min(3).max(5),
+  dialogueSnippets: z.array(z.string().min(12).max(180)).min(3).max(5),
+  finalSoraPrompt: z.string().min(180).max(2400),
+  avoidList: z.array(z.string().min(4).max(140)).min(4).max(10),
+});
+
+export const scenePlannerParticipantSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(2).max(60),
+  objectType: z.string().min(2).max(60),
+  tagline: z.string().min(12).max(180),
+  imagePublicUrl: z.string().min(1),
+  voiceProfile: objexVoiceProfileSchema,
+});
+
+export const scenePlannerResponseSchema = z.object({
+  participants: z.array(scenePlannerParticipantSchema).min(1).max(2),
+  scenarioPreset: z.string().min(2).max(80),
+  customScenarioNote: z.string().max(240),
+  moodModifier: z.string().max(40),
+  plan: generatedScenePlanSchema,
+});
+
+export const sceneRenderRequestSchema = z.object({
+  finalSoraPrompt: z.string().min(180).max(2400),
+});
+
+export const sceneRenderJobSchema = z.object({
+  id: z.string().min(1),
+  status: z.enum(["queued", "in_progress", "completed", "failed"]),
+  progress: z.number().min(0).max(100),
+  model: z.string().min(1),
+  seconds: z.string().min(1),
+  size: z.string().min(1),
+  createdAt: z.number().int().nonnegative(),
+  completedAt: z.number().int().nonnegative().nullable(),
+  expiresAt: z.number().int().nonnegative().nullable(),
+  error: z
+    .object({
+      code: z.string().min(1),
+      message: z.string().min(1),
+    })
+    .nullable(),
+  videoPublicUrl: z.string().nullable(),
+});
+
 export const createObjexResultSchema = z.object({
   id: z.string(),
 });
 
 export type ExtractionResult = z.infer<typeof extractionSchema>;
+export type GeneratedScenePlan = z.infer<typeof generatedScenePlanSchema>;
+export type SceneRenderJob = z.infer<typeof sceneRenderJobSchema>;
+export type SceneRenderRequest = z.infer<typeof sceneRenderRequestSchema>;
+export type SceneGenerationRequest = z.infer<typeof sceneGenerationRequestSchema>;
+export type SceneMoodModifier = z.infer<typeof sceneMoodModifierSchema>;
+export type ScenePlannerResponse = z.infer<typeof scenePlannerResponseSchema>;
 export type ChemistryConversationRequest = z.infer<
   typeof chemistryConversationRequestSchema
 >;

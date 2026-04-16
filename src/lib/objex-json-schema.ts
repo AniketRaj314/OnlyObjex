@@ -165,3 +165,88 @@ export const chemistrySceneJsonSchema = {
     },
   },
 } as const;
+
+export const scenePlannerJsonSchema = {
+  name: "objex_scene_plan",
+  strict: true,
+  schema: {
+    type: "object",
+    additionalProperties: false,
+    required: [
+      "scenePremise",
+      "relationshipDynamic",
+      "visualStyle",
+      "environment",
+      "objectDepiction",
+      "cameraPlan",
+      "lightingPlan",
+      "motionPlan",
+      "soundPlan",
+      "dialogueSnippets",
+      "finalSoraPrompt",
+      "avoidList",
+    ],
+    properties: {
+      scenePremise: { type: "string" },
+      relationshipDynamic: { type: "string" },
+      visualStyle: {
+        type: "array",
+        minItems: 3,
+        maxItems: 5,
+        items: { type: "string" },
+      },
+      environment: {
+        type: "array",
+        minItems: 3,
+        maxItems: 5,
+        items: { type: "string" },
+      },
+      objectDepiction: {
+        type: "object",
+        additionalProperties: false,
+        required: ["primaryObjex", "secondaryObjex"],
+        properties: {
+          primaryObjex: { type: "string" },
+          secondaryObjex: { type: "string" },
+        },
+      },
+      cameraPlan: {
+        type: "array",
+        minItems: 3,
+        maxItems: 5,
+        items: { type: "string" },
+      },
+      lightingPlan: {
+        type: "array",
+        minItems: 3,
+        maxItems: 5,
+        items: { type: "string" },
+      },
+      motionPlan: {
+        type: "array",
+        minItems: 3,
+        maxItems: 5,
+        items: { type: "string" },
+      },
+      soundPlan: {
+        type: "array",
+        minItems: 3,
+        maxItems: 5,
+        items: { type: "string" },
+      },
+      dialogueSnippets: {
+        type: "array",
+        minItems: 3,
+        maxItems: 5,
+        items: { type: "string" },
+      },
+      finalSoraPrompt: { type: "string" },
+      avoidList: {
+        type: "array",
+        minItems: 4,
+        maxItems: 10,
+        items: { type: "string" },
+      },
+    },
+  },
+} as const;

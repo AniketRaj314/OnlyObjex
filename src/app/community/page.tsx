@@ -20,6 +20,12 @@ export default async function CommunityPage() {
               Chemistry
             </Link>
             <Link
+              href="/scenes"
+              className="rounded-full border border-[var(--color-border)] bg-white px-5 py-2.5 text-sm font-semibold text-[var(--color-text)]"
+            >
+              Scenes
+            </Link>
+            <Link
               href="/create"
               className="rounded-full bg-[var(--color-accent)] px-5 py-2.5 text-sm font-semibold text-white"
             >

@@ -22,6 +22,12 @@ export default function CreatePage() {
               Chemistry
             </Link>
             <Link
+              href="/scenes"
+              className="rounded-full border border-[var(--color-border)] bg-white px-4 py-2 text-sm font-semibold text-[var(--color-text)]"
+            >
+              Scenes
+            </Link>
+            <Link
               href="/"
               className="rounded-full border border-[var(--color-border)] bg-white px-4 py-2 text-sm font-semibold text-[var(--color-text)]"
             >
