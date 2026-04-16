@@ -19,6 +19,14 @@ const loadingStages = [
   "Saving the scandal and preparing the reveal.",
 ];
 
+const acceptedImageTypes = [
+  "image/png",
+  "image/jpeg",
+  "image/webp",
+  "image/heic",
+  "image/heif",
+];
+
 export function CreateFlow() {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -26,6 +34,7 @@ export function CreateFlow() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const dragDepthRef = useRef(0);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -34,6 +43,7 @@ export function CreateFlow() {
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [isCameraLoading, setIsCameraLoading] = useState(false);
+  const [isDragActive, setIsDragActive] = useState(false);
 
   useEffect(() => {
     if (!isGenerating) {
@@ -161,6 +171,58 @@ export function CreateFlow() {
     stopCamera();
   }
 
+  function handleIncomingFile(file: File | null) {
+    if (!file) {
+      return;
+    }
+
+    if (!acceptedImageTypes.includes(file.type)) {
+      setErrorMessage("Drop a JPG, PNG, WEBP, or HEIC image.");
+      return;
+    }
+
+    setSelectedFile(file);
+    setErrorMessage(null);
+  }
+
+  function handleDragEnter(event: React.DragEvent<HTMLDivElement>) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    dragDepthRef.current += 1;
+    setIsDragActive(true);
+  }
+
+  function handleDragOver(event: React.DragEvent<HTMLDivElement>) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    event.dataTransfer.dropEffect = "copy";
+    setIsDragActive(true);
+  }
+
+  function handleDragLeave(event: React.DragEvent<HTMLDivElement>) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    dragDepthRef.current = Math.max(0, dragDepthRef.current - 1);
+
+    if (dragDepthRef.current === 0) {
+      setIsDragActive(false);
+    }
+  }
+
+  function handleDrop(event: React.DragEvent<HTMLDivElement>) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    dragDepthRef.current = 0;
+    setIsDragActive(false);
+
+    const file = event.dataTransfer.files?.[0] ?? null;
+    handleIncomingFile(file);
+  }
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -223,7 +285,29 @@ export function CreateFlow() {
             </div>
           </div>
 
-          <div className="rounded-[1.5rem] border border-dashed border-[var(--color-border-strong)] bg-[linear-gradient(180deg,#fcfeff,#f3fbff)] p-4">
+          <div
+            onDragEnter={handleDragEnter}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            className={`relative rounded-[1.5rem] border border-dashed bg-[linear-gradient(180deg,#fcfeff,#f3fbff)] p-4 transition ${
+              isDragActive
+                ? "border-[var(--color-accent)] bg-[linear-gradient(180deg,#f4fcff,#eaf8ff)] ring-2 ring-[var(--color-accent)]/20"
+                : "border-[var(--color-border-strong)]"
+            }`}
+          >
+            {isDragActive ? (
+              <div className="pointer-events-none absolute inset-3 z-10 flex items-center justify-center rounded-[1.2rem] border border-[var(--color-accent)]/20 bg-white/85 text-center shadow-sm backdrop-blur-sm">
+                <div>
+                  <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--color-accent)]">
+                    Drag image here
+                  </p>
+                  <p className="mt-2 text-sm text-[var(--color-text-soft)]">
+                    Upload or drag image here. Drop one object photo to replace the current selection.
+                  </p>
+                </div>
+              </div>
+            ) : null}
             <div className="flex items-center gap-3">
               <div className="rounded-full bg-white p-3 text-[var(--color-accent)] shadow-sm">
                 <UploadCloud className="h-5 w-5" />
@@ -265,11 +349,10 @@ export function CreateFlow() {
           <input
             ref={inputRef}
             type="file"
-            accept="image/png,image/jpeg,image/webp,image/heic,image/heif"
+            accept={acceptedImageTypes.join(",")}
             onChange={(event) => {
-              const file = event.target.files?.[0] ?? null;
-              setSelectedFile(file);
-              setErrorMessage(null);
+              handleIncomingFile(event.target.files?.[0] ?? null);
+              event.currentTarget.value = "";
             }}
             className="hidden"
           />
@@ -277,12 +360,11 @@ export function CreateFlow() {
           <input
             ref={cameraInputRef}
             type="file"
-            accept="image/png,image/jpeg,image/webp,image/heic,image/heif"
+            accept={acceptedImageTypes.join(",")}
             capture="environment"
             onChange={(event) => {
-              const file = event.target.files?.[0] ?? null;
-              setSelectedFile(file);
-              setErrorMessage(null);
+              handleIncomingFile(event.target.files?.[0] ?? null);
+              event.currentTarget.value = "";
             }}
             className="hidden"
           />
