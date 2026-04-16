@@ -1,0 +1,118 @@
+export const extractionJsonSchema = {
+  name: "objex_extraction",
+  strict: true,
+  schema: {
+    type: "object",
+    additionalProperties: false,
+    required: [
+      "objectType",
+      "confidence",
+      "shortDescription",
+      "detectedVisualTraits",
+      "objectSpecificMetaphors",
+    ],
+    properties: {
+      objectType: { type: "string" },
+      confidence: { type: "number", minimum: 0, maximum: 1 },
+      shortDescription: { type: "string" },
+      detectedVisualTraits: {
+        type: "array",
+        minItems: 3,
+        maxItems: 8,
+        items: { type: "string" },
+      },
+      objectSpecificMetaphors: {
+        type: "array",
+        minItems: 3,
+        maxItems: 8,
+        items: { type: "string" },
+      },
+    },
+  },
+} as const;
+
+export const objexProfileJsonSchema = {
+  name: "objex_profile",
+  strict: true,
+  schema: {
+    type: "object",
+    additionalProperties: false,
+    required: [
+      "name",
+      "objectType",
+      "tagline",
+      "bio",
+      "kinks",
+      "greenFlags",
+      "redFlags",
+      "openingMessage",
+      "hidden",
+    ],
+    properties: {
+      name: { type: "string" },
+      objectType: { type: "string" },
+      tagline: { type: "string" },
+      bio: { type: "string" },
+      kinks: {
+        type: "array",
+        minItems: 3,
+        maxItems: 5,
+        items: { type: "string" },
+      },
+      greenFlags: {
+        type: "array",
+        minItems: 3,
+        maxItems: 5,
+        items: { type: "string" },
+      },
+      redFlags: {
+        type: "array",
+        minItems: 3,
+        maxItems: 5,
+        items: { type: "string" },
+      },
+      openingMessage: { type: "string" },
+      hidden: {
+        type: "object",
+        additionalProperties: false,
+        required: [
+          "detectedVisualTraits",
+          "corePersonality",
+          "flirtStyle",
+          "humorStyle",
+          "darknessLevel",
+          "shamelessnessLevel",
+          "speakingStyle",
+          "forbiddenToneRules",
+          "signatureMetaphors",
+        ],
+        properties: {
+          detectedVisualTraits: {
+            type: "array",
+            minItems: 3,
+            maxItems: 8,
+            items: { type: "string" },
+          },
+          corePersonality: { type: "string" },
+          flirtStyle: { type: "string" },
+          humorStyle: { type: "string" },
+          darknessLevel: { type: "number", minimum: 1, maximum: 10 },
+          shamelessnessLevel: { type: "number", minimum: 1, maximum: 10 },
+          speakingStyle: { type: "string" },
+          forbiddenToneRules: {
+            type: "array",
+            minItems: 3,
+            maxItems: 8,
+            items: { type: "string" },
+          },
+          signatureMetaphors: {
+            type: "array",
+            minItems: 3,
+            maxItems: 8,
+            items: { type: "string" },
+          },
+        },
+      },
+    },
+  },
+} as const;
