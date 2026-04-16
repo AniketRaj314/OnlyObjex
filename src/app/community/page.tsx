@@ -14,6 +14,12 @@ export default async function CommunityPage() {
           <BrandLogo subtitle="Local community" />
           <div className="flex items-center gap-3">
             <Link
+              href="/chemistry"
+              className="rounded-full border border-[var(--color-border)] bg-white px-5 py-2.5 text-sm font-semibold text-[var(--color-text)]"
+            >
+              Chemistry
+            </Link>
+            <Link
               href="/create"
               className="rounded-full bg-[var(--color-accent)] px-5 py-2.5 text-sm font-semibold text-white"
             >

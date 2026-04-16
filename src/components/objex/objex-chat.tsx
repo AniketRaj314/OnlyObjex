@@ -10,12 +10,14 @@ import {
   VolumeX,
 } from "lucide-react";
 import type { ObjexChatMessage } from "@/lib/schemas/objex";
+import type { ObjexVoiceProfile } from "@/lib/schemas/objex";
 
 type ObjexChatProps = {
   objexId: string;
   objectName: string;
   objectType: string;
   initialMessages: ObjexChatMessage[];
+  voiceProfile: ObjexVoiceProfile;
 };
 
 function getLatestAssistantAudioUrl(messages: ObjexChatMessage[]) {
@@ -35,6 +37,7 @@ export function ObjexChat({
   objectName,
   objectType,
   initialMessages,
+  voiceProfile,
 }: ObjexChatProps) {
   const [messages, setMessages] = useState(initialMessages);
   const [draft, setDraft] = useState("");
@@ -136,8 +139,8 @@ export function ObjexChat({
             </h2>
             <p className="mt-1 max-w-2xl text-sm leading-6 text-[var(--color-text-soft)]">
               {objectName} stays in character, answers in text, and speaks each
-              reply aloud with a different OpenAI voice profile depending on
-              the object.
+              reply aloud with its fixed {voiceProfile.voice} voice on{" "}
+              {voiceProfile.model}.
             </p>
           </div>
         </div>

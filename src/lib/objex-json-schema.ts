@@ -111,6 +111,55 @@ export const objexProfileJsonSchema = {
             maxItems: 8,
             items: { type: "string" },
           },
+          voiceProfile: {
+            type: "object",
+            additionalProperties: false,
+            required: ["model", "voice", "mood", "speed"],
+            properties: {
+              model: { type: "string" },
+              voice: { type: "string" },
+              mood: { type: "string" },
+              speed: { type: "number", minimum: 0.7, maximum: 1.2 },
+            },
+          },
+        },
+      },
+    },
+  },
+} as const;
+
+export const chemistrySceneJsonSchema = {
+  name: "objex_chemistry_scene",
+  strict: true,
+  schema: {
+    type: "object",
+    additionalProperties: false,
+    required: ["title", "turns"],
+    properties: {
+      title: { type: "string" },
+      turns: {
+        type: "array",
+        minItems: 6,
+        maxItems: 6,
+        items: {
+          type: "object",
+          additionalProperties: false,
+          required: [
+            "speakerObjexId",
+            "speakerName",
+            "text",
+            "estimatedDurationSeconds",
+          ],
+          properties: {
+            speakerObjexId: { type: "string" },
+            speakerName: { type: "string" },
+            text: { type: "string" },
+            estimatedDurationSeconds: {
+              type: "number",
+              minimum: 1,
+              maximum: 20,
+            },
+          },
         },
       },
     },

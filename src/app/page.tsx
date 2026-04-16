@@ -27,18 +27,26 @@ export default function Home() {
       <header className="sticky top-0 z-20 border-b border-[var(--color-border)]/80 bg-white/90 backdrop-blur-xl">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
           <BrandLogo subtitle="Suggestive profiles for innocent things" priority />
-          <Link
-            href="/community"
-            className="rounded-full border border-[var(--color-border)] bg-white px-5 py-2.5 text-sm font-semibold text-[var(--color-text)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
-          >
-            Community
-          </Link>
-          <Link
-            href="/create"
-            className="rounded-full bg-[var(--color-accent)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--color-accent-strong)]"
-          >
-            Create Objex
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/community"
+              className="rounded-full border border-[var(--color-border)] bg-white px-5 py-2.5 text-sm font-semibold text-[var(--color-text)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
+            >
+              Community
+            </Link>
+            <Link
+              href="/chemistry"
+              className="rounded-full border border-[var(--color-border)] bg-white px-5 py-2.5 text-sm font-semibold text-[var(--color-text)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
+            >
+              Chemistry
+            </Link>
+            <Link
+              href="/create"
+              className="rounded-full bg-[var(--color-accent)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--color-accent-strong)]"
+            >
+              Create Objex
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -79,6 +87,12 @@ export default function Home() {
                 className="inline-flex items-center justify-center rounded-full border border-[var(--color-border)] bg-white px-6 py-3.5 text-base font-semibold text-[var(--color-text)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
               >
                 Browse community
+              </Link>
+              <Link
+                href="/chemistry"
+                className="inline-flex items-center justify-center rounded-full border border-[var(--color-border)] bg-white px-6 py-3.5 text-base font-semibold text-[var(--color-text)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
+              >
+                Start chemistry
               </Link>
             </div>
           </div>

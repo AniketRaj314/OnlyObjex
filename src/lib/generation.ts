@@ -10,6 +10,7 @@ import {
   type ExtractionResult,
   type ObjexProfile,
 } from "@/lib/schemas/objex";
+import { assignObjexVoiceProfile } from "@/lib/voice-profile";
 
 const objexVoiceRules = [
   "Funny first, seductive second.",
@@ -155,15 +156,20 @@ export async function buildObjexProfile(params: {
   mimeType: string;
   fileName: string;
 }) {
+  const id = randomUUID();
   const extraction = await extractObjectFromImage(params.bytes, params.mimeType);
 
-  const profile =
+  const rawProfile =
     !env.openAiApiKey && env.allowMockGeneration
       ? createMockProfile(extraction, params.fileName)
       : await generateObjexProfile(extraction);
+  const profile = assignObjexVoiceProfile({
+    objexId: id,
+    profile: rawProfile,
+  });
 
   return {
-    id: randomUUID(),
+    id,
     extraction,
     profile,
   };

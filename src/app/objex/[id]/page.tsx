@@ -13,6 +13,7 @@ import {
 import { BrandLogo } from "@/components/brand/brand-logo";
 import { ObjexChat } from "@/components/objex/objex-chat";
 import { PublishToggle } from "@/components/objex/publish-toggle";
+import { resolveObjexVoiceProfile } from "@/lib/voice-profile";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -52,6 +53,10 @@ export default async function ObjexRevealPage({ params }: PageProps) {
     openingMessage: objex.profile.openingMessage,
   });
   const chatMessages = await listObjexChatMessages(objex.id);
+  const voiceProfile = resolveObjexVoiceProfile({
+    objexId: objex.id,
+    profile: objex.profile,
+  });
 
   return (
     <div className="app-shell">
@@ -64,6 +69,12 @@ export default async function ObjexRevealPage({ params }: PageProps) {
               className="rounded-full border border-[var(--color-border)] bg-white px-4 py-2 text-sm font-semibold text-[var(--color-text)]"
             >
               Community
+            </Link>
+            <Link
+              href="/chemistry"
+              className="rounded-full border border-[var(--color-border)] bg-white px-4 py-2 text-sm font-semibold text-[var(--color-text)]"
+            >
+              Chemistry
             </Link>
             <Link
               href="/create"
@@ -215,7 +226,39 @@ export default async function ObjexRevealPage({ params }: PageProps) {
                   Voice settings
                   <ChevronDown className="h-4 w-4 text-[var(--color-text-soft)]" />
                 </summary>
-                <div className="grid gap-3 border-t border-[var(--color-border)] p-4 sm:grid-cols-2">
+                <div className="grid gap-3 border-t border-[var(--color-border)] p-4 sm:grid-cols-2 lg:grid-cols-4">
+                  <div className="rounded-xl bg-[var(--color-surface-muted)] p-3">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--color-accent)]">
+                      Voice
+                    </p>
+                    <p className="mt-2 text-sm font-semibold text-[var(--color-text)]">
+                      {voiceProfile.voice}
+                    </p>
+                  </div>
+                  <div className="rounded-xl bg-[var(--color-surface-muted)] p-3">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--color-accent)]">
+                      Model
+                    </p>
+                    <p className="mt-2 text-sm font-semibold text-[var(--color-text)]">
+                      {voiceProfile.model}
+                    </p>
+                  </div>
+                  <div className="rounded-xl bg-[var(--color-surface-muted)] p-3">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--color-accent)]">
+                      Tempo
+                    </p>
+                    <p className="mt-2 text-sm font-semibold text-[var(--color-text)]">
+                      {voiceProfile.speed.toFixed(2)}x
+                    </p>
+                  </div>
+                  <div className="rounded-xl bg-[var(--color-surface-muted)] p-3">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--color-accent)]">
+                      Mood
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-[var(--color-text-soft)]">
+                      {voiceProfile.mood}
+                    </p>
+                  </div>
                   <div className="rounded-xl bg-[var(--color-surface-muted)] p-3">
                     <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--color-accent)]">
                       Speaking Style
@@ -241,6 +284,7 @@ export default async function ObjexRevealPage({ params }: PageProps) {
                   objectName={objex.profile.name}
                   objectType={objex.profile.objectType}
                   initialMessages={chatMessages}
+                  voiceProfile={voiceProfile}
                 />
 
                 {objex.isPublished ? (

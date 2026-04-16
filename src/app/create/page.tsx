@@ -16,6 +16,12 @@ export default function CreatePage() {
               Community
             </Link>
             <Link
+              href="/chemistry"
+              className="rounded-full border border-[var(--color-border)] bg-white px-4 py-2 text-sm font-semibold text-[var(--color-text)]"
+            >
+              Chemistry
+            </Link>
+            <Link
               href="/"
               className="rounded-full border border-[var(--color-border)] bg-white px-4 py-2 text-sm font-semibold text-[var(--color-text)]"
             >

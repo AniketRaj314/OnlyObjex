@@ -1,4 +1,5 @@
 import type { ExtractionResult, ObjexProfile } from "@/lib/schemas/objex";
+import { assignObjexVoiceProfile } from "@/lib/voice-profile";
 
 export function createMockExtraction(): ExtractionResult {
   return {
@@ -26,8 +27,7 @@ export function createMockProfile(
   fileName: string,
 ): ObjexProfile {
   const baseName = fileName.split(".")[0] || "Velvet Thing";
-
-  return {
+  const profile: ObjexProfile = {
     name: `${baseName.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())} Deluxe`,
     objectType: extraction.objectType,
     tagline:
@@ -66,4 +66,9 @@ export function createMockProfile(
       signatureMetaphors: extraction.objectSpecificMetaphors,
     },
   };
+
+  return assignObjexVoiceProfile({
+    objexId: baseName,
+    profile,
+  });
 }

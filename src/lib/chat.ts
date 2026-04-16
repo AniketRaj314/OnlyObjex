@@ -1,13 +1,7 @@
 import type { ObjexChatMessage, ObjexProfile } from "@/lib/schemas/objex";
 import { env } from "@/lib/env";
 import { getOpenAIClient } from "@/lib/openai";
-
-const femaleVoiceMoods = [
-  "velvet and teasing",
-  "slow and knowingly amused",
-  "smoky and intimate",
-  "playful with a sultry edge",
-];
+import { resolveObjexVoiceProfile } from "@/lib/voice-profile";
 
 function getTextResponse(response: { output_text?: string | null }) {
   const output = response.output_text?.trim();
@@ -26,20 +20,6 @@ function buildConversationSummary(history: ObjexChatMessage[]) {
   }));
 }
 
-function hashString(input: string) {
-  let hash = 0;
-
-  for (let index = 0; index < input.length; index += 1) {
-    hash = (hash * 31 + input.charCodeAt(index)) >>> 0;
-  }
-
-  return hash;
-}
-
-function pickBySeed<T>(items: T[], seed: string) {
-  return items[hashString(seed) % items.length];
-}
-
 function buildHeuristicMemory(history: ObjexChatMessage[]) {
   const recentMessages = history.slice(-6);
 
@@ -53,26 +33,6 @@ function buildHeuristicMemory(history: ObjexChatMessage[]) {
     )
     .join(" | ")
     .slice(0, 320);
-}
-
-function getObjexVoiceProfile(params: {
-  objexId: string;
-  profile: ObjexProfile;
-}) {
-  const model = pickBySeed(env.openAiTtsModels, `${params.objexId}:model`);
-  const voice = pickBySeed(env.openAiTtsVoices, `${params.objexId}:voice`);
-  const mood = pickBySeed(
-    femaleVoiceMoods,
-    `${params.profile.name}:${params.profile.objectType}:mood`,
-  );
-  const speed = pickBySeed([0.78, 0.82, 0.86], `${params.objexId}:speed`);
-
-  return {
-    model,
-    voice,
-    mood,
-    speed,
-  };
 }
 
 export function createMockChatReply(profile: ObjexProfile, userMessage: string) {
@@ -206,7 +166,7 @@ export async function synthesizeObjexSpeech(params: {
     return null;
   }
 
-  const voiceProfile = getObjexVoiceProfile({
+  const voiceProfile = resolveObjexVoiceProfile({
     objexId: params.objexId,
     profile: params.profile,
   });
