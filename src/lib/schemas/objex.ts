@@ -42,11 +42,28 @@ export const storedObjexSchema = z.object({
   profile: objexProfileSchema,
 });
 
+export const objexChatMessageRoleSchema = z.enum(["user", "assistant"]);
+
+export const objexChatMessageSchema = z.object({
+  id: z.string().min(1),
+  objexId: z.string().min(1),
+  role: objexChatMessageRoleSchema,
+  content: z.string().min(1).max(2000),
+  createdAt: z.string().min(1),
+  audioPublicUrl: z.string().nullable(),
+});
+
+export const objexChatRequestSchema = z.object({
+  message: z.string().trim().min(1).max(600),
+});
+
 export const createObjexResultSchema = z.object({
   id: z.string(),
 });
 
 export type ExtractionResult = z.infer<typeof extractionSchema>;
 export type HiddenObjexFields = z.infer<typeof hiddenObjexFieldsSchema>;
+export type ObjexChatMessage = z.infer<typeof objexChatMessageSchema>;
+export type ObjexChatMessageRole = z.infer<typeof objexChatMessageRoleSchema>;
 export type ObjexProfile = z.infer<typeof objexProfileSchema>;
 export type StoredObjex = z.infer<typeof storedObjexSchema>;

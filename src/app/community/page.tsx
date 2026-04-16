@@ -1,16 +1,8 @@
-import Image from "next/image";
 import Link from "next/link";
 import { Globe } from "lucide-react";
 import { BrandLogo } from "@/components/brand/brand-logo";
+import { CommunityBrowser } from "@/components/community/community-browser";
 import { listPublishedObjex } from "@/lib/db";
-
-function snippet(input: string, maxLength = 120) {
-  if (input.length <= maxLength) {
-    return input;
-  }
-
-  return `${input.slice(0, maxLength).trimEnd()}...`;
-}
 
 export default async function CommunityPage() {
   const publishedObjex = await listPublishedObjex();
@@ -73,54 +65,7 @@ export default async function CommunityPage() {
             </Link>
           </section>
         ) : (
-          <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {publishedObjex.map((objex) => (
-              <Link
-                key={objex.id}
-                href={`/objex/${objex.id}`}
-                className="soft-shadow group overflow-hidden rounded-[2rem] border border-[var(--color-border)] bg-white transition hover:-translate-y-1 hover:border-[var(--color-border-strong)]"
-              >
-                <div className="relative aspect-[4/3] overflow-hidden bg-[linear-gradient(180deg,#e7f8ff,#ffffff)]">
-                  <Image
-                    src={objex.imagePublicUrl}
-                    alt={objex.profile.name}
-                    fill
-                    className="object-cover transition duration-300 group-hover:scale-[1.03]"
-                  />
-                </div>
-                <div className="space-y-4 p-5">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <h2 className="font-display text-3xl font-semibold tracking-tight">
-                        {objex.profile.name}
-                      </h2>
-                      <p className="mt-1 text-sm text-[var(--color-text-soft)]">
-                        {objex.profile.objectType}
-                      </p>
-                    </div>
-                    <span className="rounded-full bg-[var(--color-accent-soft)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-accent)]">
-                      Public
-                    </span>
-                  </div>
-                  <p className="text-sm font-semibold leading-6 text-[var(--color-text)]">
-                    {snippet(objex.profile.tagline, 96)}
-                  </p>
-                  <p className="text-sm leading-7 text-[var(--color-text-soft)]">
-                    {snippet(objex.profile.bio, 150)}
-                  </p>
-                  <div className="flex items-center justify-between border-t border-[var(--color-border)] pt-4">
-                    <p className="text-xs font-medium uppercase tracking-[0.16em] text-[var(--color-text-soft)]">
-                      Published{" "}
-                      {new Date(objex.publishedAt ?? objex.createdAt).toLocaleDateString()}
-                    </p>
-                    <span className="text-sm font-semibold text-[var(--color-accent)]">
-                      Open profile
-                    </span>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </section>
+          <CommunityBrowser publishedObjex={publishedObjex} />
         )}
       </main>
     </div>

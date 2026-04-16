@@ -15,6 +15,7 @@ const eslintConfig = defineConfig([
     "onlyobjex-app/**",
     "data/**",
     "public/uploads/**",
+    "public/chat-audio/**",
   ]),
 ]);
 
