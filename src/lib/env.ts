@@ -54,7 +54,7 @@ export const env = {
   openAiTtsVoices: uniqueValues(
     getListEnv("OPENAI_TTS_VOICES"),
     configuredTtsVoice ? [configuredTtsVoice] : undefined,
-    ["coral", "shimmer", "sage", "marin"],
+    ["coral", "nova", "shimmer", "marin"],
   ),
   appUrl: getOptionalEnv("NEXT_PUBLIC_APP_URL") ?? "http://localhost:3000",
   allowMockGeneration: process.env.ALLOW_MOCK_GENERATION === "true",

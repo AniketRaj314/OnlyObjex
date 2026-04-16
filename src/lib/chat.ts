@@ -3,10 +3,10 @@ import { env } from "@/lib/env";
 import { getOpenAIClient } from "@/lib/openai";
 
 const femaleVoiceMoods = [
-  "velvet and amused",
-  "cool and teasing",
-  "glossy and playful",
+  "velvet and teasing",
+  "slow and knowingly amused",
   "smoky and intimate",
+  "playful with a sultry edge",
 ];
 
 function getTextResponse(response: { output_text?: string | null }) {
@@ -65,7 +65,7 @@ function getObjexVoiceProfile(params: {
     femaleVoiceMoods,
     `${params.profile.name}:${params.profile.objectType}:mood`,
   );
-  const speed = pickBySeed([0.92, 0.96, 1, 1.04], `${params.objexId}:speed`);
+  const speed = pickBySeed([0.78, 0.82, 0.86], `${params.objexId}:speed`);
 
   return {
     model,
@@ -223,7 +223,8 @@ export async function synthesizeObjexSpeech(params: {
           `Speaking style: ${params.profile.hidden.speakingStyle}.`,
           `Humor style: ${params.profile.hidden.humorStyle}.`,
           `Voice mood: ${voiceProfile.mood}.`,
-          "Keep the read natural, feminine, self-aware, and lightly dramatic rather than cartoonish.",
+          "Keep the read slower, feminine, self-aware, and lightly dramatic rather than cartoonish.",
+          "Aim for confident, flirtatious warmth with a sexy edge, but stay tasteful and natural.",
         ].join(" "),
   });
 
