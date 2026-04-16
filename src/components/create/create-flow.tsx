@@ -201,7 +201,7 @@ export function CreateFlow() {
 
   return (
     <>
-      <div className="grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
+      <div>
         <form
           onSubmit={handleSubmit}
           className="soft-shadow rounded-[1.75rem] border border-[var(--color-border)] bg-white p-4 sm:p-5"
@@ -212,10 +212,12 @@ export function CreateFlow() {
                 Upload
               </p>
               <h2 className="mt-1.5 font-display text-[2rem] font-semibold tracking-tight sm:text-[2.25rem]">
-                One object. One photo.
+                {selectedFile ? "Photo locked in." : "One object. One photo."}
               </h2>
               <p className="mt-2 text-sm leading-6 text-[var(--color-text-soft)]">
-                We go straight from photo to reveal.
+                {selectedFile
+                  ? "Looks good. Reveal when you're ready."
+                  : "We go straight from photo to reveal."}
               </p>
             </div>
             <div className="rounded-2xl bg-[var(--color-accent-soft)] p-2.5 text-[var(--color-accent)]">
@@ -223,44 +225,141 @@ export function CreateFlow() {
             </div>
           </div>
 
-          <div className="rounded-[1.5rem] border border-dashed border-[var(--color-border-strong)] bg-[linear-gradient(180deg,#fcfeff,#f3fbff)] p-4">
-            <div className="flex items-center gap-3">
-              <div className="rounded-full bg-white p-3 text-[var(--color-accent)] shadow-sm">
-                <UploadCloud className="h-5 w-5" />
-              </div>
-              <div>
-                <p className="text-base font-semibold text-[var(--color-text)]">
-                  Upload or take a real object photo
-                </p>
-                <p className="text-sm text-[var(--color-text-soft)]">
-                  Clear subject, simple background, no confirmation step.
-                </p>
-              </div>
-            </div>
+          {!selectedFile ? (
+            <div className="space-y-4">
+              <div className="rounded-[1.5rem] border border-dashed border-[var(--color-border-strong)] bg-[linear-gradient(180deg,#fcfeff,#f3fbff)] p-4">
+                <div className="flex items-center gap-3">
+                  <div className="rounded-full bg-white p-3 text-[var(--color-accent)] shadow-sm">
+                    <UploadCloud className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-base font-semibold text-[var(--color-text)]">
+                      Upload or take a real object photo
+                    </p>
+                    <p className="text-sm text-[var(--color-text-soft)]">
+                      Clear subject, simple background, no confirmation step.
+                    </p>
+                  </div>
+                </div>
 
-            <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
-              <button
-                type="button"
-                onClick={openCamera}
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--color-accent)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--color-accent-strong)]"
-              >
-                {isCameraLoading ? (
-                  <LoaderCircle className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Camera className="h-4 w-4" />
-                )}
-                Use camera
-              </button>
-              <button
-                type="button"
-                onClick={() => inputRef.current?.click()}
-                className="inline-flex items-center justify-center gap-2 rounded-full border border-[var(--color-border)] bg-white px-4 py-2.5 text-sm font-semibold text-[var(--color-text)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
-              >
-                <UploadCloud className="h-4 w-4" />
-                Upload photo
-              </button>
+                <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
+                  <button
+                    type="button"
+                    onClick={openCamera}
+                    className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--color-accent)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--color-accent-strong)]"
+                  >
+                    {isCameraLoading ? (
+                      <LoaderCircle className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Camera className="h-4 w-4" />
+                    )}
+                    Use camera
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => inputRef.current?.click()}
+                    className="inline-flex items-center justify-center gap-2 rounded-full border border-[var(--color-border)] bg-white px-4 py-2.5 text-sm font-semibold text-[var(--color-text)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
+                  >
+                    <UploadCloud className="h-4 w-4" />
+                    Upload photo
+                  </button>
+                </div>
+              </div>
+
+              <div className="rounded-[1.3rem] border border-[var(--color-border)] bg-[var(--color-surface-muted)] p-3.5">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--color-text-soft)]">
+                      Selected
+                    </p>
+                    <p className="mt-1 text-sm font-semibold text-[var(--color-text)] sm:text-base">
+                      Nothing uploaded yet
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-[260px_1fr]">
+                <div className="rounded-[1.4rem] border border-[var(--color-border)] bg-[var(--color-surface-muted)] p-3">
+                  <div className="relative aspect-[4/5] overflow-hidden rounded-[1.1rem] bg-[linear-gradient(180deg,#e9f8ff,#f8fcff)]">
+                    {previewUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={previewUrl}
+                        alt="Uploaded object preview"
+                        className="h-full w-full object-cover"
+                      />
+                    ) : null}
+                  </div>
+                </div>
+
+                <div className="rounded-[1.4rem] border border-[var(--color-border)] bg-[linear-gradient(180deg,#fcfeff,#f7fbff)] p-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--color-accent)]">
+                        Selected
+                      </p>
+                      <p className="mt-1 text-sm font-semibold text-[var(--color-text)] sm:text-base">
+                        {selectedFile.name}
+                      </p>
+                    </div>
+                    <span className="rounded-full bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--color-accent)]">
+                      Ready
+                    </span>
+                  </div>
+
+                  <p className="mt-4 text-lg font-semibold tracking-tight text-[var(--color-text)]">
+                    {isGenerating
+                      ? stageLabel
+                      : "Ready to generate the Objex reveal."}
+                  </p>
+
+                  <div className="mt-4 grid gap-2">
+                    {loadingStages.map((stage, index) => {
+                      const active = isGenerating && index === stageIndex;
+                      const complete = isGenerating && index < stageIndex;
+
+                      return (
+                        <div
+                          key={stage}
+                          className={`rounded-[1rem] border px-3 py-2.5 text-sm transition ${
+                            active
+                              ? "border-[var(--color-accent)] bg-[var(--color-accent-soft)] text-[var(--color-text)]"
+                              : complete
+                                ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                                : "border-[var(--color-border)] bg-white text-[var(--color-text-soft)]"
+                          }`}
+                        >
+                          {stage}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div className="mt-4 flex flex-col gap-2.5 sm:flex-row">
+                    <button
+                      type="button"
+                      onClick={() => inputRef.current?.click()}
+                      className="inline-flex items-center justify-center gap-2 rounded-full border border-[var(--color-border)] bg-white px-4 py-2.5 text-sm font-semibold text-[var(--color-text)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
+                    >
+                      <UploadCloud className="h-4 w-4" />
+                      Change photo
+                    </button>
+                    <button
+                      type="button"
+                      onClick={openCamera}
+                      className="inline-flex items-center justify-center gap-2 rounded-full border border-[var(--color-border)] bg-white px-4 py-2.5 text-sm font-semibold text-[var(--color-text)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
+                    >
+                      <Camera className="h-4 w-4" />
+                      Retake
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           <input
             ref={inputRef}
@@ -286,24 +385,6 @@ export function CreateFlow() {
             }}
             className="hidden"
           />
-
-          <div className="mt-4 rounded-[1.3rem] border border-[var(--color-border)] bg-[var(--color-surface-muted)] p-3.5">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--color-text-soft)]">
-                  Selected
-                </p>
-                <p className="mt-1 text-sm font-semibold text-[var(--color-text)] sm:text-base">
-                  {selectedFile ? selectedFile.name : "Nothing uploaded yet"}
-                </p>
-              </div>
-              {selectedFile ? (
-                <span className="rounded-full bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--color-accent)]">
-                  Ready
-                </span>
-              ) : null}
-            </div>
-          </div>
 
           {errorMessage ? (
             <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
@@ -345,59 +426,6 @@ export function CreateFlow() {
             </div>
           </details>
         </form>
-
-        <div className="soft-shadow overflow-hidden rounded-[1.75rem] border border-[var(--color-border)] bg-white">
-          <div className="grid gap-0 md:grid-cols-[0.85fr_1.15fr]">
-            <div className="p-4">
-              <div className="relative aspect-[4/5] overflow-hidden rounded-[1.35rem] bg-[linear-gradient(180deg,#e9f8ff,#f8fcff)]">
-                {previewUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={previewUrl}
-                    alt="Uploaded object preview"
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <div className="flex h-full items-center justify-center px-6 text-center text-sm leading-6 text-[var(--color-text-soft)]">
-                    Your preview lands here.
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="border-t border-[var(--color-border)] p-4 md:border-l md:border-t-0">
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-accent)]">
-                Generation
-              </p>
-              <p className="mt-2 text-lg font-semibold tracking-tight text-[var(--color-text)]">
-                {isGenerating
-                  ? stageLabel
-                  : "Upload, generate, reveal. That’s the whole first slice."}
-              </p>
-              <div className="mt-4 grid gap-2">
-                {loadingStages.map((stage, index) => {
-                  const active = isGenerating && index === stageIndex;
-                  const complete = isGenerating && index < stageIndex;
-
-                  return (
-                    <div
-                      key={stage}
-                      className={`rounded-[1rem] border px-3 py-2.5 text-sm transition ${
-                        active
-                          ? "border-[var(--color-accent)] bg-[var(--color-accent-soft)] text-[var(--color-text)]"
-                          : complete
-                            ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-                            : "border-[var(--color-border)] bg-[var(--color-surface-muted)] text-[var(--color-text-soft)]"
-                      }`}
-                    >
-                      {stage}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
 
       {isCameraOpen ? (
