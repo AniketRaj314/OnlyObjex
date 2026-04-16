@@ -43,4 +43,5 @@ next-env.d.ts
 # local app data
 /data/
 /public/uploads/
+/public/chat-audio/
 /onlyobjex-app/

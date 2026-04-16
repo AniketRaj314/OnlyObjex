@@ -1,8 +1,14 @@
+import { randomUUID } from "node:crypto";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
-import type { ObjexProfile, StoredObjex } from "@/lib/schemas/objex";
-import { storedObjexSchema } from "@/lib/schemas/objex";
+import type {
+  ObjexChatMessage,
+  ObjexChatMessageRole,
+  ObjexProfile,
+  StoredObjex,
+} from "@/lib/schemas/objex";
+import { objexChatMessageSchema, storedObjexSchema } from "@/lib/schemas/objex";
 
 const dataDir = path.join(process.cwd(), "data");
 const dbPath = path.join(dataDir, "onlyobjex.db");
@@ -37,7 +43,24 @@ function ensureObjexSchema(db: DatabaseSync) {
   if (!columns.includes("published_at")) {
     db.exec("ALTER TABLE objex ADD COLUMN published_at TEXT");
   }
-}
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS objex_chat_messages (
+      id TEXT PRIMARY KEY,
+      objex_id TEXT NOT NULL,
+      role TEXT NOT NULL,
+      content TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      audio_public_url TEXT,
+      FOREIGN KEY(objex_id) REFERENCES objex(id) ON DELETE CASCADE
+    )
+  `);
+
+  db.exec(`
+    CREATE INDEX IF NOT EXISTS objex_chat_messages_objex_created_at_idx
+    ON objex_chat_messages (objex_id, created_at)
+  `);
+  }
 
 function getDatabase() {
   if (database) {
@@ -195,4 +218,124 @@ export async function listPublishedObjex(): Promise<StoredObjex[]> {
       profile: JSON.parse(row.profileJson),
     }),
   );
+}
+
+function parseChatMessageRow(row: {
+  id: string;
+  objexId: string;
+  role: string;
+  content: string;
+  createdAt: string;
+  audioPublicUrl: string | null;
+}) {
+  return objexChatMessageSchema.parse(row);
+}
+
+export async function ensureObjexChatStarterMessage(record: {
+  objexId: string;
+  openingMessage: string;
+}) {
+  await initializeDatabase();
+  const db = getDatabase();
+  const row = db
+    .prepare(
+      `
+        SELECT COUNT(*) as count
+        FROM objex_chat_messages
+        WHERE objex_id = ?
+      `,
+    )
+    .get(record.objexId) as { count: number };
+
+  if (row.count > 0) {
+    return;
+  }
+
+  db.prepare(
+    `
+      INSERT INTO objex_chat_messages (
+        id,
+        objex_id,
+        role,
+        content,
+        created_at,
+        audio_public_url
+      ) VALUES (?, ?, ?, ?, ?, ?)
+    `,
+  ).run(
+    randomUUID(),
+    record.objexId,
+    "assistant",
+    record.openingMessage,
+    new Date().toISOString(),
+    null,
+  );
+}
+
+export async function listObjexChatMessages(
+  objexId: string,
+): Promise<ObjexChatMessage[]> {
+  await initializeDatabase();
+  const db = getDatabase();
+  const rows = db
+    .prepare(
+      `
+        SELECT
+          id,
+          objex_id as objexId,
+          role,
+          content,
+          created_at as createdAt,
+          audio_public_url as audioPublicUrl
+        FROM objex_chat_messages
+        WHERE objex_id = ?
+        ORDER BY created_at ASC
+      `,
+    )
+    .all(objexId) as Array<{
+    id: string;
+    objexId: string;
+    role: string;
+    content: string;
+    createdAt: string;
+    audioPublicUrl: string | null;
+  }>;
+
+  return rows.map(parseChatMessageRow);
+}
+
+export async function saveObjexChatMessage(record: {
+  objexId: string;
+  role: ObjexChatMessageRole;
+  content: string;
+  createdAt?: string;
+  audioPublicUrl?: string | null;
+}): Promise<ObjexChatMessage> {
+  await initializeDatabase();
+  const db = getDatabase();
+  const id = randomUUID();
+  const createdAt = record.createdAt ?? new Date().toISOString();
+  const audioPublicUrl = record.audioPublicUrl ?? null;
+
+  db.prepare(
+    `
+      INSERT INTO objex_chat_messages (
+        id,
+        objex_id,
+        role,
+        content,
+        created_at,
+        audio_public_url
+      ) VALUES (?, ?, ?, ?, ?, ?)
+    `,
+  ).run(id, record.objexId, record.role, record.content, createdAt, audioPublicUrl);
+
+  return parseChatMessageRow({
+    id,
+    objexId: record.objexId,
+    role: record.role,
+    content: record.content,
+    createdAt,
+    audioPublicUrl,
+  });
 }

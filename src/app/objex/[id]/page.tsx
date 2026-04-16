@@ -4,10 +4,14 @@ import { notFound } from "next/navigation";
 import {
   ChevronDown,
   Globe,
-  MessageCircleMore,
   Sparkles,
 } from "lucide-react";
-import { getObjexById } from "@/lib/db";
+import {
+  ensureObjexChatStarterMessage,
+  getObjexById,
+  listObjexChatMessages,
+} from "@/lib/db";
+import { ObjexChat } from "@/components/objex/objex-chat";
 import { PublishToggle } from "@/components/objex/publish-toggle";
 
 type PageProps = {
@@ -42,6 +46,12 @@ export default async function ObjexRevealPage({ params }: PageProps) {
   if (!objex) {
     notFound();
   }
+
+  await ensureObjexChatStarterMessage({
+    objexId: objex.id,
+    openingMessage: objex.profile.openingMessage,
+  });
+  const chatMessages = await listObjexChatMessages(objex.id);
 
   return (
     <div className="app-shell">
@@ -237,39 +247,24 @@ export default async function ObjexRevealPage({ params }: PageProps) {
                 </div>
               </details>
 
-              <section className="rounded-[1.3rem] border border-[var(--color-border)] bg-white p-4">
-                <div className="flex items-center gap-3">
-                  <div className="rounded-xl bg-[var(--color-accent-soft)] p-2.5 text-[var(--color-accent)]">
-                    <MessageCircleMore className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-accent)]">
-                      Future Chat
-                    </p>
-                    <p className="mt-1 text-sm text-[var(--color-text-soft)]">
-                      Reserved for the next build.
-                    </p>
-                  </div>
-                </div>
-                <div className="mt-4 flex flex-col gap-2.5 sm:flex-row">
-                  <button
-                    type="button"
-                    disabled
-                    className="rounded-full bg-[var(--color-accent)] px-4 py-2.5 text-sm font-semibold text-white opacity-70"
+              <div className="space-y-3">
+                <ObjexChat
+                  objexId={objex.id}
+                  objectName={objex.profile.name}
+                  objectType={objex.profile.objectType}
+                  initialMessages={chatMessages}
+                />
+
+                {objex.isPublished ? (
+                  <Link
+                    href="/community"
+                    className="inline-flex items-center justify-center gap-2 rounded-full border border-[var(--color-border)] bg-white px-4 py-2.5 text-sm font-semibold text-[var(--color-text)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
                   >
-                    Chat coming soon
-                  </button>
-                  {objex.isPublished ? (
-                    <Link
-                      href="/community"
-                      className="inline-flex items-center justify-center gap-2 rounded-full border border-[var(--color-border)] bg-white px-4 py-2.5 text-sm font-semibold text-[var(--color-text)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
-                    >
-                      <Globe className="h-4 w-4" />
-                      View in community
-                    </Link>
-                  ) : null}
-                </div>
-              </section>
+                    <Globe className="h-4 w-4" />
+                    View in community
+                  </Link>
+                ) : null}
+              </div>
 
               <PublishToggle
                 id={objex.id}

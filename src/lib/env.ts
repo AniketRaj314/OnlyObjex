@@ -8,6 +8,9 @@ export const env = {
   openAiProfileModel: getOptionalEnv("OPENAI_PROFILE_MODEL") ?? "gpt-5.4",
   openAiVisionModel:
     getOptionalEnv("OPENAI_VISION_MODEL") ?? "gpt-4.1-mini",
+  openAiTtsModel:
+    getOptionalEnv("OPENAI_TTS_MODEL") ?? "gpt-4o-mini-tts",
+  openAiTtsVoice: getOptionalEnv("OPENAI_TTS_VOICE") ?? "coral",
   appUrl: getOptionalEnv("NEXT_PUBLIC_APP_URL") ?? "http://localhost:3000",
   allowMockGeneration: process.env.ALLOW_MOCK_GENERATION === "true",
 };
