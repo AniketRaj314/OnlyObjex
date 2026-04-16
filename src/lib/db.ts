@@ -60,7 +60,16 @@ function ensureObjexSchema(db: DatabaseSync) {
     CREATE INDEX IF NOT EXISTS objex_chat_messages_objex_created_at_idx
     ON objex_chat_messages (objex_id, created_at)
   `);
-  }
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS objex_chat_memory (
+      objex_id TEXT PRIMARY KEY,
+      summary TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      FOREIGN KEY(objex_id) REFERENCES objex(id) ON DELETE CASCADE
+    )
+  `);
+}
 
 function getDatabase() {
   if (database) {
@@ -338,4 +347,42 @@ export async function saveObjexChatMessage(record: {
     createdAt,
     audioPublicUrl,
   });
+}
+
+export async function getObjexChatMemorySummary(objexId: string) {
+  await initializeDatabase();
+  const db = getDatabase();
+  const row = db
+    .prepare(
+      `
+        SELECT summary
+        FROM objex_chat_memory
+        WHERE objex_id = ?
+      `,
+    )
+    .get(objexId) as { summary: string } | undefined;
+
+  return row?.summary ?? null;
+}
+
+export async function saveObjexChatMemorySummary(record: {
+  objexId: string;
+  summary: string;
+}) {
+  await initializeDatabase();
+  const db = getDatabase();
+  const updatedAt = new Date().toISOString();
+
+  db.prepare(
+    `
+      INSERT INTO objex_chat_memory (
+        objex_id,
+        summary,
+        updated_at
+      ) VALUES (?, ?, ?)
+      ON CONFLICT(objex_id) DO UPDATE SET
+        summary = excluded.summary,
+        updated_at = excluded.updated_at
+    `,
+  ).run(record.objexId, record.summary, updatedAt);
 }

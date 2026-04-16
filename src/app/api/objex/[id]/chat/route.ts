@@ -2,11 +2,17 @@ import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import {
   ensureObjexChatStarterMessage,
+  getObjexChatMemorySummary,
   getObjexById,
   listObjexChatMessages,
+  saveObjexChatMemorySummary,
   saveObjexChatMessage,
 } from "@/lib/db";
-import { generateObjexChatReply, synthesizeObjexSpeech } from "@/lib/chat";
+import {
+  generateObjexChatReply,
+  summarizeObjexChatMemory,
+  synthesizeObjexSpeech,
+} from "@/lib/chat";
 import { objexChatRequestSchema } from "@/lib/schemas/objex";
 import { saveChatAudioLocally } from "@/lib/storage";
 
@@ -30,10 +36,18 @@ export async function POST(
       openingMessage: objex.profile.openingMessage,
     });
 
+    const userMessage = await saveObjexChatMessage({
+      objexId: objex.id,
+      role: "user",
+      content: body.message,
+    });
+
+    const memorySummary = await getObjexChatMemorySummary(objex.id);
     const history = await listObjexChatMessages(objex.id);
     const assistantReply = await generateObjexChatReply({
       profile: objex.profile,
       history,
+      memorySummary,
       userMessage: body.message,
     });
 
@@ -41,6 +55,7 @@ export async function POST(
 
     try {
       const audioBytes = await synthesizeObjexSpeech({
+        objexId: objex.id,
         profile: objex.profile,
         text: assistantReply,
       });
@@ -56,18 +71,29 @@ export async function POST(
       console.error("Objex TTS failed", error);
     }
 
-    const userMessage = await saveObjexChatMessage({
-      objexId: objex.id,
-      role: "user",
-      content: body.message,
-    });
-
     const assistantMessage = await saveObjexChatMessage({
       objexId: objex.id,
       role: "assistant",
       content: assistantReply,
       audioPublicUrl,
     });
+
+    try {
+      const nextSummary = await summarizeObjexChatMemory({
+        profile: objex.profile,
+        previousSummary: memorySummary,
+        history: [...history, assistantMessage],
+      });
+
+      if (nextSummary) {
+        await saveObjexChatMemorySummary({
+          objexId: objex.id,
+          summary: nextSummary,
+        });
+      }
+    } catch (error) {
+      console.error("Objex chat memory update failed", error);
+    }
 
     return NextResponse.json({
       messages: [userMessage, assistantMessage],

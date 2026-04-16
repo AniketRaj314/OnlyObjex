@@ -135,7 +135,8 @@ export function ObjexChat({
             </h2>
             <p className="mt-1 max-w-2xl text-sm leading-6 text-[var(--color-text-soft)]">
               {objectName} stays in character, answers in text, and speaks each
-              reply aloud when voice is available.
+              reply aloud with a different OpenAI voice profile depending on
+              the object.
             </p>
           </div>
         </div>
@@ -226,8 +227,8 @@ export function ObjexChat({
 
         <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs leading-5 text-[var(--color-text-soft)]">
-            Voice uses OpenAI TTS for assistant replies. The mic icon is reserved
-            for voice input next.
+            Replies are shorter now, chat memory carries the running bit, and
+            the mic is reserved for voice input next.
           </p>
           <button
             type="button"
