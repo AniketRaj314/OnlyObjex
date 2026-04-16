@@ -85,6 +85,7 @@ export const objexProfileJsonSchema = {
           "speakingStyle",
           "forbiddenToneRules",
           "signatureMetaphors",
+          "voiceProfile",
         ],
         properties: {
           detectedVisualTraits: {
