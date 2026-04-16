@@ -37,6 +37,8 @@ export const storedObjexSchema = z.object({
   imagePath: z.string().min(1),
   imagePublicUrl: z.string().min(1),
   createdAt: z.string().min(1),
+  isPublished: z.boolean(),
+  publishedAt: z.string().nullable(),
   profile: objexProfileSchema,
 });
 

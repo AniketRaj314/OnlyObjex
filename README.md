@@ -7,8 +7,10 @@ OnlyObjex turns a real photo of an everyday object into a polished, creator-styl
 - `/` landing page
 - `/create` upload and generation flow
 - `/objex/[id]` reveal page
+- `/community` published Objex listing
 - image upload to local storage
 - saved Objex records in a local SQLite database
+- local publish/unpublish state in SQLite
 - two-step AI pipeline:
   - object extraction from the image
   - strict JSON profile generation
@@ -53,6 +55,18 @@ npm run dev
 Then open [http://localhost:3000](http://localhost:3000).
 
 Generated images are stored in `public/uploads/` and Objex records are stored in `data/onlyobjex.db`.
+
+## Local publish and community
+
+- Publish or unpublish from the Objex reveal page
+- Published profiles appear on `/community`
+- Publish state is stored locally in SQLite with `is_published` and `published_at`
+- Existing local databases are upgraded automatically on startup; no manual migration is required
+
+## Camera capture
+
+- The create flow supports both `Take photo` and `Choose from library`
+- On supported mobile browsers, `Take photo` uses the browser's native file input capture behavior with `capture="environment"` to prompt direct camera capture
 
 ## Supabase follow-up
 

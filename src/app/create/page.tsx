@@ -18,6 +18,12 @@ export default function CreatePage() {
             </div>
           </Link>
           <Link
+            href="/community"
+            className="rounded-full border border-[var(--color-border)] bg-white px-5 py-2.5 text-sm font-semibold text-[var(--color-text)]"
+          >
+            Community
+          </Link>
+          <Link
             href="/"
             className="rounded-full border border-[var(--color-border)] bg-white px-5 py-2.5 text-sm font-semibold text-[var(--color-text)]"
           >

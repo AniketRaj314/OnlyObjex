@@ -38,6 +38,12 @@ export default function Home() {
             </div>
           </Link>
           <Link
+            href="/community"
+            className="rounded-full border border-[var(--color-border)] bg-white px-5 py-2.5 text-sm font-semibold text-[var(--color-text)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
+          >
+            Community
+          </Link>
+          <Link
             href="/create"
             className="rounded-full bg-[var(--color-accent)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--color-accent-strong)]"
           >
@@ -78,6 +84,12 @@ export default function Home() {
                 <Eye className="h-4 w-4" />
                 See the vibe
               </a>
+              <Link
+                href="/community"
+                className="inline-flex items-center justify-center rounded-full border border-[var(--color-border)] bg-white px-6 py-3.5 text-base font-semibold text-[var(--color-text)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
+              >
+                Browse community
+              </Link>
             </div>
           </div>
 

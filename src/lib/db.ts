@@ -9,13 +9,14 @@ const dbPath = path.join(dataDir, "onlyobjex.db");
 
 let database: DatabaseSync | undefined;
 
-function getDatabase() {
-  if (database) {
-    return database;
-  }
+function getColumns(db: DatabaseSync) {
+  return db.prepare("PRAGMA table_info(objex)").all() as Array<{
+    name: string;
+  }>;
+}
 
-  database = new DatabaseSync(dbPath);
-  database.exec(`
+function ensureObjexSchema(db: DatabaseSync) {
+  db.exec(`
     CREATE TABLE IF NOT EXISTS objex (
       id TEXT PRIMARY KEY,
       image_path TEXT NOT NULL,
@@ -24,6 +25,27 @@ function getDatabase() {
       profile_json TEXT NOT NULL
     )
   `);
+
+  const columns = getColumns(db).map((column) => column.name);
+
+  if (!columns.includes("is_published")) {
+    db.exec(
+      "ALTER TABLE objex ADD COLUMN is_published INTEGER NOT NULL DEFAULT 0",
+    );
+  }
+
+  if (!columns.includes("published_at")) {
+    db.exec("ALTER TABLE objex ADD COLUMN published_at TEXT");
+  }
+}
+
+function getDatabase() {
+  if (database) {
+    return database;
+  }
+
+  database = new DatabaseSync(dbPath);
+  ensureObjexSchema(database);
 
   return database;
 }
@@ -50,8 +72,10 @@ export async function saveObjex(record: {
         image_path,
         image_public_url,
         created_at,
-        profile_json
-      ) VALUES (?, ?, ?, ?, ?)
+        profile_json,
+        is_published,
+        published_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?)
     `,
   ).run(
     record.id,
@@ -59,6 +83,8 @@ export async function saveObjex(record: {
     record.imagePublicUrl,
     record.createdAt,
     JSON.stringify(record.profile),
+    0,
+    null,
   );
 }
 
@@ -74,6 +100,8 @@ export async function getObjexById(id: string): Promise<StoredObjex | null> {
           image_path as imagePath,
           image_public_url as imagePublicUrl,
           created_at as createdAt,
+          is_published as isPublished,
+          published_at as publishedAt,
           profile_json as profileJson
         FROM objex
         WHERE id = ?
@@ -85,6 +113,8 @@ export async function getObjexById(id: string): Promise<StoredObjex | null> {
         imagePath: string;
         imagePublicUrl: string;
         createdAt: string;
+        isPublished: number;
+        publishedAt: string | null;
         profileJson: string;
       }
     | undefined;
@@ -98,6 +128,71 @@ export async function getObjexById(id: string): Promise<StoredObjex | null> {
     imagePath: row.imagePath,
     imagePublicUrl: row.imagePublicUrl,
     createdAt: row.createdAt,
+    isPublished: Boolean(row.isPublished),
+    publishedAt: row.publishedAt,
     profile: JSON.parse(row.profileJson),
   });
+}
+
+export async function setObjexPublishedState(
+  id: string,
+  isPublished: boolean,
+): Promise<StoredObjex | null> {
+  await initializeDatabase();
+  const db = getDatabase();
+  const publishedAt = isPublished ? new Date().toISOString() : null;
+
+  db.prepare(
+    `
+      UPDATE objex
+      SET
+        is_published = ?,
+        published_at = ?
+      WHERE id = ?
+    `,
+  ).run(isPublished ? 1 : 0, publishedAt, id);
+
+  return getObjexById(id);
+}
+
+export async function listPublishedObjex(): Promise<StoredObjex[]> {
+  await initializeDatabase();
+  const db = getDatabase();
+  const rows = db
+    .prepare(
+      `
+        SELECT
+          id,
+          image_path as imagePath,
+          image_public_url as imagePublicUrl,
+          created_at as createdAt,
+          is_published as isPublished,
+          published_at as publishedAt,
+          profile_json as profileJson
+        FROM objex
+        WHERE is_published = 1
+        ORDER BY COALESCE(published_at, created_at) DESC
+      `,
+    )
+    .all() as Array<{
+    id: string;
+    imagePath: string;
+    imagePublicUrl: string;
+    createdAt: string;
+    isPublished: number;
+    publishedAt: string | null;
+    profileJson: string;
+  }>;
+
+  return rows.map((row) =>
+    storedObjexSchema.parse({
+      id: row.id,
+      imagePath: row.imagePath,
+      imagePublicUrl: row.imagePublicUrl,
+      createdAt: row.createdAt,
+      isPublished: Boolean(row.isPublished),
+      publishedAt: row.publishedAt,
+      profile: JSON.parse(row.profileJson),
+    }),
+  );
 }

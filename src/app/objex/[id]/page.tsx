@@ -1,8 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { MessageCircleMore, Sparkles } from "lucide-react";
+import { Globe, MessageCircleMore, Sparkles } from "lucide-react";
 import { getObjexById } from "@/lib/db";
+import { PublishToggle } from "@/components/objex/publish-toggle";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -52,6 +53,12 @@ export default async function ObjexRevealPage({ params }: PageProps) {
                 Profile reveal
               </p>
             </div>
+          </Link>
+          <Link
+            href="/community"
+            className="rounded-full border border-[var(--color-border)] bg-white px-5 py-2.5 text-sm font-semibold text-[var(--color-text)]"
+          >
+            Community
           </Link>
           <Link
             href="/create"
@@ -210,15 +217,23 @@ export default async function ObjexRevealPage({ params }: PageProps) {
                   >
                     Chat coming soon
                   </button>
-                  <button
-                    type="button"
-                    disabled
-                    className="rounded-full border border-[var(--color-border)] bg-white px-5 py-3 text-sm font-semibold text-[var(--color-text-soft)]"
-                  >
-                    Publish later
-                  </button>
+                  {objex.isPublished ? (
+                    <Link
+                      href="/community"
+                      className="inline-flex items-center justify-center gap-2 rounded-full border border-[var(--color-border)] bg-white px-5 py-3 text-sm font-semibold text-[var(--color-text)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
+                    >
+                      <Globe className="h-4 w-4" />
+                      View in community
+                    </Link>
+                  ) : null}
                 </div>
               </section>
+
+              <PublishToggle
+                id={objex.id}
+                initialIsPublished={objex.isPublished}
+                initialPublishedAt={objex.publishedAt}
+              />
             </div>
           </div>
         </section>

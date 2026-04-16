@@ -14,6 +14,7 @@ const loadingStages = [
 export function CreateFlow() {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -124,8 +125,39 @@ export function CreateFlow() {
           </p>
         </button>
 
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <button
+            type="button"
+            onClick={() => cameraInputRef.current?.click()}
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--color-accent)] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[var(--color-accent-strong)]"
+          >
+            <Camera className="h-4 w-4" />
+            Take photo
+          </button>
+          <button
+            type="button"
+            onClick={() => inputRef.current?.click()}
+            className="inline-flex items-center justify-center gap-2 rounded-full border border-[var(--color-border)] bg-white px-5 py-3 text-sm font-semibold text-[var(--color-text)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
+          >
+            <UploadCloud className="h-4 w-4" />
+            Choose from library
+          </button>
+        </div>
+
         <input
           ref={inputRef}
+          type="file"
+          accept="image/png,image/jpeg,image/webp,image/heic,image/heif"
+          onChange={(event) => {
+            const file = event.target.files?.[0] ?? null;
+            setSelectedFile(file);
+            setErrorMessage(null);
+          }}
+          className="hidden"
+        />
+
+        <input
+          ref={cameraInputRef}
           type="file"
           accept="image/png,image/jpeg,image/webp,image/heic,image/heif"
           capture="environment"
@@ -178,6 +210,9 @@ export function CreateFlow() {
             </>
           )}
         </button>
+        <p className="mt-3 text-sm leading-6 text-[var(--color-text-soft)]">
+          On supported phones, <span className="font-semibold text-[var(--color-text)]">Take photo</span> prompts the browser to open the device camera directly. Otherwise the browser will fall back to its standard photo picker.
+        </p>
       </form>
 
       <div className="space-y-6">
