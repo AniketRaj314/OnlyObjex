@@ -7,7 +7,9 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
-    "typecheck": "next typegen && tsc --noEmit"
+    "typecheck": "next typegen && tsc --noEmit",
+    "tts": "node scripts/test-openai-tts.mjs",
+    "tts:dry-run": "node scripts/test-openai-tts.mjs --dry-run"
   },
   "dependencies": {
     "clsx": "^2.1.1",

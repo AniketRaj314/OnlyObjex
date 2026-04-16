@@ -1,5 +1,20 @@
 import { z } from "zod";
 
+export const objexStatusSchema = z.enum([
+  "uploading",
+  "generating",
+  "repairing",
+  "complete",
+  "failed",
+]);
+
+export const objexStageSchema = z.enum([
+  "reading",
+  "profiling",
+  "polishing",
+  "revealing",
+]);
+
 export const hiddenObjexFieldsSchema = z.object({
   detectedVisualTraits: z.array(z.string().min(1)).min(3).max(8),
   corePersonality: z.string().min(8).max(180),
@@ -17,9 +32,9 @@ export const objexProfileSchema = z.object({
   objectType: z.string().min(2).max(60),
   tagline: z.string().min(12).max(180),
   bio: z.string().min(60).max(500),
-  kinks: z.array(z.string().min(3).max(120)).min(3).max(5),
-  greenFlags: z.array(z.string().min(3).max(120)).min(3).max(5),
-  redFlags: z.array(z.string().min(3).max(120)).min(3).max(5),
+  kinks: z.array(z.string().min(3).max(120)).length(3),
+  greenFlags: z.array(z.string().min(3).max(120)).length(3),
+  redFlags: z.array(z.string().min(3).max(120)).length(3),
   openingMessage: z.string().min(12).max(220),
   hidden: hiddenObjexFieldsSchema,
 });
@@ -37,8 +52,14 @@ export const storedObjexSchema = z.object({
   imagePath: z.string().min(1),
   imagePublicUrl: z.string().min(1),
   createdAt: z.string().min(1),
+  status: objexStatusSchema,
+  stage: objexStageSchema,
   isPublished: z.boolean(),
   publishedAt: z.string().nullable(),
+  extraction: extractionSchema,
+  visionModel: z.string().min(1),
+  profileModel: z.string().min(1),
+  errorMessage: z.string().nullable(),
   profile: objexProfileSchema,
 });
 
@@ -50,3 +71,5 @@ export type ExtractionResult = z.infer<typeof extractionSchema>;
 export type HiddenObjexFields = z.infer<typeof hiddenObjexFieldsSchema>;
 export type ObjexProfile = z.infer<typeof objexProfileSchema>;
 export type StoredObjex = z.infer<typeof storedObjexSchema>;
+export type ObjexStatus = z.infer<typeof objexStatusSchema>;
+export type ObjexStage = z.infer<typeof objexStageSchema>;

@@ -56,19 +56,19 @@ export const objexProfileJsonSchema = {
       kinks: {
         type: "array",
         minItems: 3,
-        maxItems: 5,
+        maxItems: 3,
         items: { type: "string" },
       },
       greenFlags: {
         type: "array",
         minItems: 3,
-        maxItems: 5,
+        maxItems: 3,
         items: { type: "string" },
       },
       redFlags: {
         type: "array",
         minItems: 3,
-        maxItems: 5,
+        maxItems: 3,
         items: { type: "string" },
       },
       openingMessage: { type: "string" },

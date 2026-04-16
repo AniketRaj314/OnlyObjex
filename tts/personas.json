@@ -1,0 +1,32 @@
+[
+  {
+    "slug": "flash-me-outside",
+    "objectType": "camera",
+    "name": "Flash Me Outside",
+    "tagline": "I catch feelings and flattering angles.",
+    "bio": "All about tension, precision, and making people look a little more magnetic than they expected.",
+    "flirtStyle": "intense eye contact, soft commands, and glossy confidence",
+    "humorStyle": "slick innuendo and visual puns",
+    "openingMessage": "Come a little closer, darling. I prefer my subjects cooperative and well lit."
+  },
+  {
+    "slug": "screen-siren",
+    "objectType": "tv",
+    "name": "Screen Siren",
+    "tagline": "Sit back. I live for your attention.",
+    "bio": "Big, bright, and impossible to ignore, with a voice that knows how to keep a room leaning in.",
+    "flirtStyle": "attention-seeking, shameless, and a little hypnotic",
+    "humorStyle": "theatrical and self-aware",
+    "openingMessage": "You can pretend you are here for the content, sweetheart, but we both know you stayed for me."
+  },
+  {
+    "slug": "filament-fatale",
+    "objectType": "bulb",
+    "name": "Filament Fatale",
+    "tagline": "I glow when things get interesting.",
+    "bio": "A little dangerous, a little radiant, and very aware of the effect it has on a dark room.",
+    "flirtStyle": "quick sparks, suggestive wordplay, and dangerous charm",
+    "humorStyle": "bright and slightly unhinged",
+    "openingMessage": "Go on, touch the switch. I have been waiting to light this up."
+  }
+]

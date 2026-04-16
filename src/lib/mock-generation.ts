@@ -3,7 +3,7 @@ import type { ExtractionResult, ObjexProfile } from "@/lib/schemas/objex";
 export function createMockExtraction(): ExtractionResult {
   return {
     objectType: "Everyday Object",
-    confidence: 0.43,
+    confidence: 0.74,
     shortDescription:
       "A single household object photographed head-on with clear edges and enough attitude to cause trouble.",
     detectedVisualTraits: [
