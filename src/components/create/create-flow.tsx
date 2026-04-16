@@ -19,6 +19,14 @@ const loadingStages = [
   "Saving the scandal and preparing the reveal.",
 ];
 
+function LoadingDots() {
+  return (
+    <span className="inline-flex w-5 justify-start text-[var(--color-accent)]">
+      <span className="loading-dots" aria-hidden="true" />
+    </span>
+  );
+}
+
 export function CreateFlow() {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -42,7 +50,7 @@ export function CreateFlow() {
 
     const interval = window.setInterval(() => {
       setStageIndex((current) => (current + 1) % loadingStages.length);
-    }, 1800);
+    }, 3000);
 
     return () => window.clearInterval(interval);
   }, [isGenerating]);
@@ -312,30 +320,25 @@ export function CreateFlow() {
 
                   <p className="mt-4 text-lg font-semibold tracking-tight text-[var(--color-text)]">
                     {isGenerating
-                      ? stageLabel
+                      ? "Generating your Objex"
                       : "Ready to generate the Objex reveal."}
                   </p>
 
-                  <div className="mt-4 grid gap-2">
-                    {loadingStages.map((stage, index) => {
-                      const active = isGenerating && index === stageIndex;
-                      const complete = isGenerating && index < stageIndex;
-
-                      return (
-                        <div
-                          key={stage}
-                          className={`rounded-[1rem] border px-3 py-2.5 text-sm transition ${
-                            active
-                              ? "border-[var(--color-accent)] bg-[var(--color-accent-soft)] text-[var(--color-text)]"
-                              : complete
-                                ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-                                : "border-[var(--color-border)] bg-white text-[var(--color-text-soft)]"
-                          }`}
-                        >
-                          {stage}
-                        </div>
-                      );
-                    })}
+                  <div
+                    className={`mt-4 rounded-[1rem] border px-3 py-3 text-sm leading-6 transition ${
+                      isGenerating
+                        ? "border-[var(--color-accent)] bg-[var(--color-accent-soft)] text-[var(--color-text)]"
+                        : "border-[var(--color-border)] bg-white text-[var(--color-text-soft)]"
+                    }`}
+                  >
+                    {isGenerating ? (
+                      <span className="inline-flex items-center">
+                        <span>{stageLabel}</span>
+                        <LoadingDots />
+                      </span>
+                    ) : (
+                      "We’ll identify the object, write the profile, save it, and reveal it."
+                    )}
                   </div>
 
                   <div className="mt-4 flex flex-col gap-2.5 sm:flex-row">
