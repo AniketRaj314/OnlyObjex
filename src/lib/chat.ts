@@ -76,7 +76,7 @@ function getObjexVoiceProfile(params: {
 }
 
 export function createMockChatReply(profile: ObjexProfile, userMessage: string) {
-  return `${profile.name} here. "${userMessage}" is a strong start, but try being even more specific and I’ll make this much worse in record time.`;
+  return `${profile.name} here. "${userMessage}" is a strong start, but try being even more specific and I'll make this much worse in record time.`;
 }
 
 export async function generateObjexChatReply(params: {
@@ -135,7 +135,8 @@ export async function generateObjexChatReply(params: {
                 },
               },
               conversationMemory:
-                params.memorySummary ?? "No durable memory yet beyond the recent turns.",
+                params.memorySummary ??
+                "No durable memory yet beyond the recent turns.",
               recentConversation: buildConversationSummary(params.history),
               latestUserMessage: params.userMessage,
             }),

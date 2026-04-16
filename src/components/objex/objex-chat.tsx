@@ -106,9 +106,10 @@ export function ObjexChat({
           throw new Error(payload.error ?? "Chat reply failed.");
         }
 
+        const nextMessages = payload.messages;
         setMessages((currentMessages) => [
           ...currentMessages,
-          ...payload.messages!,
+          ...nextMessages,
         ]);
         setDraft("");
       } catch (error) {

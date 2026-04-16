@@ -1,5 +1,5 @@
-import { randomUUID } from "node:crypto";
 import { mkdir } from "node:fs/promises";
+import { randomUUID } from "node:crypto";
 import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import type {
@@ -8,7 +8,10 @@ import type {
   ObjexProfile,
   StoredObjex,
 } from "@/lib/schemas/objex";
-import { objexChatMessageSchema, storedObjexSchema } from "@/lib/schemas/objex";
+import {
+  objexChatMessageSchema,
+  storedObjexSchema,
+} from "@/lib/schemas/objex";
 
 const dataDir = path.join(process.cwd(), "data");
 const dbPath = path.join(dataDir, "onlyobjex.db");
@@ -337,7 +340,14 @@ export async function saveObjexChatMessage(record: {
         audio_public_url
       ) VALUES (?, ?, ?, ?, ?, ?)
     `,
-  ).run(id, record.objexId, record.role, record.content, createdAt, audioPublicUrl);
+  ).run(
+    id,
+    record.objexId,
+    record.role,
+    record.content,
+    createdAt,
+    audioPublicUrl,
+  );
 
   return parseChatMessageRow({
     id,
