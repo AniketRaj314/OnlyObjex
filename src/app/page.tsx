@@ -1,5 +1,7 @@
 import Link from "next/link";
-import { Eye, Flame, Sparkles, Upload } from "lucide-react";
+import Image from "next/image";
+import { Eye, Flame, Upload } from "lucide-react";
+import { BrandLogo } from "@/components/brand/brand-logo";
 
 const teaserProfiles = [
   {
@@ -24,19 +26,7 @@ export default function Home() {
     <div className="app-shell">
       <header className="sticky top-0 z-20 border-b border-[var(--color-border)]/80 bg-white/90 backdrop-blur-xl">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--color-accent)] text-white shadow-lg shadow-cyan-500/20">
-              <Sparkles className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="font-display text-xl font-semibold tracking-tight">
-                OnlyObjex
-              </p>
-              <p className="text-sm text-[var(--color-text-soft)]">
-                Suggestive profiles for innocent things
-              </p>
-            </div>
-          </Link>
+          <BrandLogo subtitle="Suggestive profiles for innocent things" priority />
           <Link
             href="/community"
             className="rounded-full border border-[var(--color-border)] bg-white px-5 py-2.5 text-sm font-semibold text-[var(--color-text)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
@@ -114,9 +104,13 @@ export default function Home() {
                 <div className="grid gap-4 p-4 sm:grid-cols-[180px_1fr]">
                   <div className="aspect-[4/5] rounded-[1.6rem] bg-[linear-gradient(180deg,#d9f7ff,#eff9ff)] p-3">
                     <div className="flex h-full items-end rounded-[1.25rem] border border-white/70 bg-[radial-gradient(circle_at_top,#93e1ff,#17b2ef_55%,#078bc3)] p-4">
-                      <p className="max-w-[120px] text-sm font-medium text-white/90">
-                        Framed. Focused. Not remotely subtle.
-                      </p>
+                      <Image
+                        src="/brand/onlyobjex-wordmark.svg"
+                        alt="OnlyObjex"
+                        width={152}
+                        height={36}
+                        className="h-7 w-auto brightness-[1.6] contrast-[1.1]"
+                      />
                     </div>
                   </div>
                   <div className="space-y-4">

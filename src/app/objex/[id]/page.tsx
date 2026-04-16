@@ -4,13 +4,13 @@ import { notFound } from "next/navigation";
 import {
   ChevronDown,
   Globe,
-  Sparkles,
 } from "lucide-react";
 import {
   ensureObjexChatStarterMessage,
   getObjexById,
   listObjexChatMessages,
 } from "@/lib/db";
+import { BrandLogo } from "@/components/brand/brand-logo";
 import { ObjexChat } from "@/components/objex/objex-chat";
 import { PublishToggle } from "@/components/objex/publish-toggle";
 
@@ -57,19 +57,7 @@ export default async function ObjexRevealPage({ params }: PageProps) {
     <div className="app-shell">
       <header className="sticky top-0 z-20 border-b border-[var(--color-border)]/80 bg-white/92 backdrop-blur-xl">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--color-accent)] text-white">
-              <Sparkles className="h-4 w-4" />
-            </div>
-            <div>
-              <p className="font-display text-xl font-semibold tracking-tight">
-                OnlyObjex
-              </p>
-              <p className="text-sm text-[var(--color-text-soft)]">
-                Profile reveal
-              </p>
-            </div>
-          </Link>
+          <BrandLogo subtitle="Profile reveal" />
           <div className="flex items-center gap-3">
             <Link
               href="/community"

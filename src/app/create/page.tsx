@@ -1,22 +1,13 @@
 import Link from "next/link";
 import { CreateFlow } from "@/components/create/create-flow";
+import { BrandLogo } from "@/components/brand/brand-logo";
 
 export default function CreatePage() {
   return (
     <div className="app-shell">
       <header className="sticky top-0 z-20 border-b border-[var(--color-border)]/80 bg-white/90 backdrop-blur-xl">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-2xl bg-[var(--color-accent)]" />
-            <div>
-              <p className="font-display text-xl font-semibold tracking-tight">
-                OnlyObjex
-              </p>
-              <p className="text-sm text-[var(--color-text-soft)]">
-                Upload / generate / reveal
-              </p>
-            </div>
-          </Link>
+          <BrandLogo subtitle="Upload / generate / reveal" />
           <div className="flex items-center gap-3">
             <Link
               href="/community"

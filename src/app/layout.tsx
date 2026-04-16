@@ -5,6 +5,11 @@ export const metadata: Metadata = {
   title: "OnlyObjex",
   description:
     "Upload a real object photo and reveal its shamelessly suggestive, hilariously polished Objex profile.",
+  icons: {
+    icon: "/brand/onlyobjex-mark.svg",
+    shortcut: "/brand/onlyobjex-mark.svg",
+    apple: "/brand/onlyobjex-mark.svg",
+  },
 };
 
 export default function RootLayout({
