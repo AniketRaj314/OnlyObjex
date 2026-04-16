@@ -1,7 +1,6 @@
 import { mkdir } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
-import { DatabaseSync } from "node:sqlite";
 import type {
   ObjexChatMessage,
   ObjexChatMessageRole,
@@ -12,19 +11,52 @@ import {
   objexChatMessageSchema,
   storedObjexSchema,
 } from "@/lib/schemas/objex";
+import { getSupabaseAdminClient, hasSupabase } from "@/lib/supabase";
 
 const dataDir = path.join(process.cwd(), "data");
 const dbPath = path.join(dataDir, "onlyobjex.db");
 
-let database: DatabaseSync | undefined;
+type SQLiteDatabase = {
+  exec: (sql: string) => void;
+  prepare: (sql: string) => {
+    run: (...args: unknown[]) => unknown;
+    get: (...args: unknown[]) => unknown;
+    all: (...args: unknown[]) => unknown;
+  };
+};
 
-function getColumns(db: DatabaseSync) {
+type SupabaseObjexRow = {
+  id: string;
+  image_path: string;
+  image_public_url: string;
+  created_at: string;
+  is_published: boolean;
+  published_at: string | null;
+  profile_json: Record<string, unknown>;
+};
+
+type SupabaseChatMessageRow = {
+  id: string;
+  objex_id: string;
+  role: string;
+  content: string;
+  created_at: string;
+  audio_public_url: string | null;
+};
+
+let database: SQLiteDatabase | undefined;
+
+async function getSQLiteModule() {
+  return import("node:sqlite");
+}
+
+function getColumns(db: SQLiteDatabase) {
   return db.prepare("PRAGMA table_info(objex)").all() as Array<{
     name: string;
   }>;
 }
 
-function ensureObjexSchema(db: DatabaseSync) {
+function ensureObjexSchema(db: SQLiteDatabase) {
   db.exec(`
     CREATE TABLE IF NOT EXISTS objex (
       id TEXT PRIMARY KEY,
@@ -74,20 +106,59 @@ function ensureObjexSchema(db: DatabaseSync) {
   `);
 }
 
-function getDatabase() {
+async function getDatabase() {
   if (database) {
     return database;
   }
 
-  database = new DatabaseSync(dbPath);
+  const { DatabaseSync } = await getSQLiteModule();
+  database = new DatabaseSync(dbPath) as SQLiteDatabase;
   ensureObjexSchema(database);
 
   return database;
 }
 
+function parseStoredObjexRow(row: {
+  id: string;
+  imagePath: string;
+  imagePublicUrl: string;
+  createdAt: string;
+  isPublished: boolean | number;
+  publishedAt: string | null;
+  profileJson: string | Record<string, unknown>;
+}) {
+  return storedObjexSchema.parse({
+    id: row.id,
+    imagePath: row.imagePath,
+    imagePublicUrl: row.imagePublicUrl,
+    createdAt: row.createdAt,
+    isPublished: Boolean(row.isPublished),
+    publishedAt: row.publishedAt,
+    profile:
+      typeof row.profileJson === "string"
+        ? JSON.parse(row.profileJson)
+        : row.profileJson,
+  });
+}
+
+function parseChatMessageRow(row: {
+  id: string;
+  objexId: string;
+  role: string;
+  content: string;
+  createdAt: string;
+  audioPublicUrl: string | null;
+}) {
+  return objexChatMessageSchema.parse(row);
+}
+
 export async function initializeDatabase() {
+  if (hasSupabase()) {
+    return;
+  }
+
   await mkdir(dataDir, { recursive: true });
-  getDatabase();
+  await getDatabase();
 }
 
 export async function saveObjex(record: {
@@ -97,8 +168,27 @@ export async function saveObjex(record: {
   createdAt: string;
   profile: ObjexProfile;
 }) {
+  if (hasSupabase()) {
+    const supabase = getSupabaseAdminClient();
+    const { error } = await supabase.from("objex").insert({
+      id: record.id,
+      image_path: record.imagePath,
+      image_public_url: record.imagePublicUrl,
+      created_at: record.createdAt,
+      profile_json: record.profile,
+      is_published: false,
+      published_at: null,
+    });
+
+    if (error) {
+      throw new Error(`Failed to save Objex in Supabase: ${error.message}`);
+    }
+
+    return;
+  }
+
   await initializeDatabase();
-  const db = getDatabase();
+  const db = await getDatabase();
 
   db.prepare(
     `
@@ -124,8 +214,37 @@ export async function saveObjex(record: {
 }
 
 export async function getObjexById(id: string): Promise<StoredObjex | null> {
+  if (hasSupabase()) {
+    const supabase = getSupabaseAdminClient();
+    const { data, error } = await supabase
+      .from("objex")
+      .select(
+        "id, image_path, image_public_url, created_at, is_published, published_at, profile_json",
+      )
+      .eq("id", id)
+      .maybeSingle();
+
+    if (error) {
+      throw new Error(`Failed to load Objex from Supabase: ${error.message}`);
+    }
+
+    if (!data) {
+      return null;
+    }
+
+    return parseStoredObjexRow({
+      id: data.id,
+      imagePath: data.image_path,
+      imagePublicUrl: data.image_public_url,
+      createdAt: data.created_at,
+      isPublished: data.is_published,
+      publishedAt: data.published_at,
+      profileJson: data.profile_json,
+    });
+  }
+
   await initializeDatabase();
-  const db = getDatabase();
+  const db = await getDatabase();
 
   const row = db
     .prepare(
@@ -158,24 +277,36 @@ export async function getObjexById(id: string): Promise<StoredObjex | null> {
     return null;
   }
 
-  return storedObjexSchema.parse({
-    id: row.id,
-    imagePath: row.imagePath,
-    imagePublicUrl: row.imagePublicUrl,
-    createdAt: row.createdAt,
-    isPublished: Boolean(row.isPublished),
-    publishedAt: row.publishedAt,
-    profile: JSON.parse(row.profileJson),
-  });
+  return parseStoredObjexRow(row);
 }
 
 export async function setObjexPublishedState(
   id: string,
   isPublished: boolean,
 ): Promise<StoredObjex | null> {
-  await initializeDatabase();
-  const db = getDatabase();
   const publishedAt = isPublished ? new Date().toISOString() : null;
+
+  if (hasSupabase()) {
+    const supabase = getSupabaseAdminClient();
+    const { error } = await supabase
+      .from("objex")
+      .update({
+        is_published: isPublished,
+        published_at: publishedAt,
+      })
+      .eq("id", id);
+
+    if (error) {
+      throw new Error(
+        `Failed to update publish state in Supabase: ${error.message}`,
+      );
+    }
+
+    return getObjexById(id);
+  }
+
+  await initializeDatabase();
+  const db = await getDatabase();
 
   db.prepare(
     `
@@ -191,8 +322,38 @@ export async function setObjexPublishedState(
 }
 
 export async function listPublishedObjex(): Promise<StoredObjex[]> {
+  if (hasSupabase()) {
+    const supabase = getSupabaseAdminClient();
+    const { data, error } = await supabase
+      .from("objex")
+      .select(
+        "id, image_path, image_public_url, created_at, is_published, published_at, profile_json",
+      )
+      .eq("is_published", true)
+      .order("published_at", { ascending: false, nullsFirst: false })
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      throw new Error(
+        `Failed to list published Objex from Supabase: ${error.message}`,
+      );
+    }
+
+    return ((data ?? []) as SupabaseObjexRow[]).map((row) =>
+      parseStoredObjexRow({
+        id: row.id,
+        imagePath: row.image_path,
+        imagePublicUrl: row.image_public_url,
+        createdAt: row.created_at,
+        isPublished: row.is_published,
+        publishedAt: row.published_at,
+        profileJson: row.profile_json,
+      }),
+    );
+  }
+
   await initializeDatabase();
-  const db = getDatabase();
+  const db = await getDatabase();
   const rows = db
     .prepare(
       `
@@ -219,22 +380,38 @@ export async function listPublishedObjex(): Promise<StoredObjex[]> {
     profileJson: string;
   }>;
 
-  return rows.map((row) =>
-    storedObjexSchema.parse({
-      id: row.id,
-      imagePath: row.imagePath,
-      imagePublicUrl: row.imagePublicUrl,
-      createdAt: row.createdAt,
-      isPublished: Boolean(row.isPublished),
-      publishedAt: row.publishedAt,
-      profile: JSON.parse(row.profileJson),
-    }),
-  );
+  return rows.map(parseStoredObjexRow);
 }
 
 export async function listAllObjex(): Promise<StoredObjex[]> {
+  if (hasSupabase()) {
+    const supabase = getSupabaseAdminClient();
+    const { data, error } = await supabase
+      .from("objex")
+      .select(
+        "id, image_path, image_public_url, created_at, is_published, published_at, profile_json",
+      )
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      throw new Error(`Failed to list Objex from Supabase: ${error.message}`);
+    }
+
+    return ((data ?? []) as SupabaseObjexRow[]).map((row) =>
+      parseStoredObjexRow({
+        id: row.id,
+        imagePath: row.image_path,
+        imagePublicUrl: row.image_public_url,
+        createdAt: row.created_at,
+        isPublished: row.is_published,
+        publishedAt: row.published_at,
+        profileJson: row.profile_json,
+      }),
+    );
+  }
+
   await initializeDatabase();
-  const db = getDatabase();
+  const db = await getDatabase();
   const rows = db
     .prepare(
       `
@@ -260,36 +437,52 @@ export async function listAllObjex(): Promise<StoredObjex[]> {
     profileJson: string;
   }>;
 
-  return rows.map((row) =>
-    storedObjexSchema.parse({
-      id: row.id,
-      imagePath: row.imagePath,
-      imagePublicUrl: row.imagePublicUrl,
-      createdAt: row.createdAt,
-      isPublished: Boolean(row.isPublished),
-      publishedAt: row.publishedAt,
-      profile: JSON.parse(row.profileJson),
-    }),
-  );
-}
-
-function parseChatMessageRow(row: {
-  id: string;
-  objexId: string;
-  role: string;
-  content: string;
-  createdAt: string;
-  audioPublicUrl: string | null;
-}) {
-  return objexChatMessageSchema.parse(row);
+  return rows.map(parseStoredObjexRow);
 }
 
 export async function ensureObjexChatStarterMessage(record: {
   objexId: string;
   openingMessage: string;
 }) {
+  if (hasSupabase()) {
+    const supabase = getSupabaseAdminClient();
+    const { count, error } = await supabase
+      .from("objex_chat_messages")
+      .select("id", { count: "exact", head: true })
+      .eq("objex_id", record.objexId);
+
+    if (error) {
+      throw new Error(
+        `Failed to check chat starter message in Supabase: ${error.message}`,
+      );
+    }
+
+    if ((count ?? 0) > 0) {
+      return;
+    }
+
+    const { error: insertError } = await supabase
+      .from("objex_chat_messages")
+      .insert({
+        id: randomUUID(),
+        objex_id: record.objexId,
+        role: "assistant",
+        content: record.openingMessage,
+        created_at: new Date().toISOString(),
+        audio_public_url: null,
+      });
+
+    if (insertError) {
+      throw new Error(
+        `Failed to insert starter message in Supabase: ${insertError.message}`,
+      );
+    }
+
+    return;
+  }
+
   await initializeDatabase();
-  const db = getDatabase();
+  const db = await getDatabase();
   const row = db
     .prepare(
       `
@@ -328,8 +521,34 @@ export async function ensureObjexChatStarterMessage(record: {
 export async function listObjexChatMessages(
   objexId: string,
 ): Promise<ObjexChatMessage[]> {
+  if (hasSupabase()) {
+    const supabase = getSupabaseAdminClient();
+    const { data, error } = await supabase
+      .from("objex_chat_messages")
+      .select("id, objex_id, role, content, created_at, audio_public_url")
+      .eq("objex_id", objexId)
+      .order("created_at", { ascending: true });
+
+    if (error) {
+      throw new Error(
+        `Failed to list chat messages from Supabase: ${error.message}`,
+      );
+    }
+
+    return ((data ?? []) as SupabaseChatMessageRow[]).map((row) =>
+      parseChatMessageRow({
+        id: row.id,
+        objexId: row.objex_id,
+        role: row.role,
+        content: row.content,
+        createdAt: row.created_at,
+        audioPublicUrl: row.audio_public_url,
+      }),
+    );
+  }
+
   await initializeDatabase();
-  const db = getDatabase();
+  const db = await getDatabase();
   const rows = db
     .prepare(
       `
@@ -364,11 +583,39 @@ export async function saveObjexChatMessage(record: {
   createdAt?: string;
   audioPublicUrl?: string | null;
 }): Promise<ObjexChatMessage> {
-  await initializeDatabase();
-  const db = getDatabase();
   const id = randomUUID();
   const createdAt = record.createdAt ?? new Date().toISOString();
   const audioPublicUrl = record.audioPublicUrl ?? null;
+
+  if (hasSupabase()) {
+    const supabase = getSupabaseAdminClient();
+    const { error } = await supabase.from("objex_chat_messages").insert({
+      id,
+      objex_id: record.objexId,
+      role: record.role,
+      content: record.content,
+      created_at: createdAt,
+      audio_public_url: audioPublicUrl,
+    });
+
+    if (error) {
+      throw new Error(
+        `Failed to save chat message in Supabase: ${error.message}`,
+      );
+    }
+
+    return parseChatMessageRow({
+      id,
+      objexId: record.objexId,
+      role: record.role,
+      content: record.content,
+      createdAt,
+      audioPublicUrl,
+    });
+  }
+
+  await initializeDatabase();
+  const db = await getDatabase();
 
   db.prepare(
     `
@@ -401,8 +648,25 @@ export async function saveObjexChatMessage(record: {
 }
 
 export async function getObjexChatMemorySummary(objexId: string) {
+  if (hasSupabase()) {
+    const supabase = getSupabaseAdminClient();
+    const { data, error } = await supabase
+      .from("objex_chat_memory")
+      .select("summary")
+      .eq("objex_id", objexId)
+      .maybeSingle();
+
+    if (error) {
+      throw new Error(
+        `Failed to read chat memory from Supabase: ${error.message}`,
+      );
+    }
+
+    return data?.summary ?? null;
+  }
+
   await initializeDatabase();
-  const db = getDatabase();
+  const db = await getDatabase();
   const row = db
     .prepare(
       `
@@ -420,9 +684,32 @@ export async function saveObjexChatMemorySummary(record: {
   objexId: string;
   summary: string;
 }) {
-  await initializeDatabase();
-  const db = getDatabase();
   const updatedAt = new Date().toISOString();
+
+  if (hasSupabase()) {
+    const supabase = getSupabaseAdminClient();
+    const { error } = await supabase.from("objex_chat_memory").upsert(
+      {
+        objex_id: record.objexId,
+        summary: record.summary,
+        updated_at: updatedAt,
+      },
+      {
+        onConflict: "objex_id",
+      },
+    );
+
+    if (error) {
+      throw new Error(
+        `Failed to save chat memory in Supabase: ${error.message}`,
+      );
+    }
+
+    return;
+  }
+
+  await initializeDatabase();
+  const db = await getDatabase();
 
   db.prepare(
     `

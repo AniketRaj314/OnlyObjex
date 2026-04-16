@@ -44,4 +44,5 @@ next-env.d.ts
 /data/
 /public/uploads/
 /public/chat-audio/
+/public/scene-videos/
 /onlyobjex-app/

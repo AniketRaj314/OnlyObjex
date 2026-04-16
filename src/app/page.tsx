@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Eye, Flame, Upload } from "lucide-react";
+import { Flame, Upload } from "lucide-react";
 import { BrandLogo } from "@/components/brand/brand-logo";
 
 const teaserProfiles = [

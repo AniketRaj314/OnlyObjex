@@ -61,6 +61,9 @@ export const env = {
     configuredTtsVoice ? [configuredTtsVoice] : undefined,
     ["coral", "nova", "shimmer", "marin"],
   ),
+  supabaseUrl: getOptionalEnv("SUPABASE_URL"),
+  supabaseAnonKey: getOptionalEnv("SUPABASE_ANON_KEY"),
+  supabaseServiceRoleKey: getOptionalEnv("SUPABASE_SERVICE_ROLE_KEY"),
   appUrl: getOptionalEnv("NEXT_PUBLIC_APP_URL") ?? "http://localhost:3000",
   allowMockGeneration: process.env.ALLOW_MOCK_GENERATION === "true",
 };

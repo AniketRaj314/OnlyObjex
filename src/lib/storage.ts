@@ -1,5 +1,7 @@
 import { access, mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { getSupabaseAdminClient, getSupabasePublicUrl, hasSupabase, supabaseBuckets } from "@/lib/supabase";
+
 const uploadsDir = path.join(process.cwd(), "public", "uploads");
 const chatAudioDir = path.join(process.cwd(), "public", "chat-audio");
 const sceneVideoDir = path.join(process.cwd(), "public", "scene-videos");
@@ -20,14 +22,52 @@ function extensionForMimeType(mimeType: string) {
   }
 }
 
+async function uploadToSupabase(params: {
+  bucket: string;
+  objectPath: string;
+  bytes: Buffer;
+  contentType: string;
+}) {
+  const supabase = getSupabaseAdminClient();
+  const { error } = await supabase.storage
+    .from(params.bucket)
+    .upload(params.objectPath, params.bytes, {
+      contentType: params.contentType,
+      upsert: true,
+    });
+
+  if (error) {
+    throw new Error(`Failed to upload to Supabase Storage: ${error.message}`);
+  }
+
+  return getSupabasePublicUrl(params.bucket, params.objectPath);
+}
+
 export async function saveImageLocally(
   id: string,
   bytes: Buffer,
   mimeType: string,
 ) {
-  await mkdir(uploadsDir, { recursive: true });
   const extension = extensionForMimeType(mimeType);
   const fileName = `${id}.${extension}`;
+
+  if (hasSupabase()) {
+    const objectPath = `objex/${fileName}`;
+    const publicUrl = await uploadToSupabase({
+      bucket: supabaseBuckets.uploadBucket,
+      objectPath,
+      bytes,
+      contentType: mimeType,
+    });
+
+    return {
+      imagePath: objectPath,
+      imagePublicUrl: publicUrl,
+      imageRelativeUrl: publicUrl,
+    };
+  }
+
+  await mkdir(uploadsDir, { recursive: true });
   const relativePath = `/uploads/${fileName}`;
   const absolutePath = path.join(uploadsDir, fileName);
 
@@ -41,8 +81,24 @@ export async function saveImageLocally(
 }
 
 export async function saveChatAudioLocally(id: string, bytes: Buffer) {
-  await mkdir(chatAudioDir, { recursive: true });
   const fileName = `${id}.mp3`;
+
+  if (hasSupabase()) {
+    const objectPath = `chat/${fileName}`;
+    const publicUrl = await uploadToSupabase({
+      bucket: supabaseBuckets.chatAudioBucket,
+      objectPath,
+      bytes,
+      contentType: "audio/mpeg",
+    });
+
+    return {
+      audioPath: objectPath,
+      audioPublicUrl: publicUrl,
+    };
+  }
+
+  await mkdir(chatAudioDir, { recursive: true });
   const relativePath = `/chat-audio/${fileName}`;
   const absolutePath = path.join(chatAudioDir, fileName);
 
@@ -56,6 +112,21 @@ export async function saveChatAudioLocally(id: string, bytes: Buffer) {
 
 export async function getSavedSceneVideoPublicUrl(id: string) {
   const fileName = `${id}.mp4`;
+
+  if (hasSupabase()) {
+    const objectPath = `renders/${fileName}`;
+    const supabase = getSupabaseAdminClient();
+    const { data, error } = await supabase.storage
+      .from(supabaseBuckets.sceneVideoBucket)
+      .download(objectPath);
+
+    if (error || !data) {
+      return null;
+    }
+
+    return getSupabasePublicUrl(supabaseBuckets.sceneVideoBucket, objectPath);
+  }
+
   const absolutePath = path.join(sceneVideoDir, fileName);
 
   try {
@@ -68,8 +139,24 @@ export async function getSavedSceneVideoPublicUrl(id: string) {
 }
 
 export async function saveSceneVideoLocally(id: string, bytes: Buffer) {
-  await mkdir(sceneVideoDir, { recursive: true });
   const fileName = `${id}.mp4`;
+
+  if (hasSupabase()) {
+    const objectPath = `renders/${fileName}`;
+    const publicUrl = await uploadToSupabase({
+      bucket: supabaseBuckets.sceneVideoBucket,
+      objectPath,
+      bytes,
+      contentType: "video/mp4",
+    });
+
+    return {
+      videoPath: objectPath,
+      videoPublicUrl: publicUrl,
+    };
+  }
+
+  await mkdir(sceneVideoDir, { recursive: true });
   const relativePath = `/scene-videos/${fileName}`;
   const absolutePath = path.join(sceneVideoDir, fileName);
 
