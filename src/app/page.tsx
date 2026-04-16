@@ -2,26 +2,14 @@ import Link from "next/link";
 import Image from "next/image";
 import { Flame, Upload } from "lucide-react";
 import { BrandLogo } from "@/components/brand/brand-logo";
+import { listPublishedObjex } from "@/lib/db";
 
-const teaserProfiles = [
-  {
-    name: "Velvet Clamp",
-    objectType: "Lamp",
-    tagline: "Soft glow. Hard stare. Knows exactly when to switch on.",
-  },
-  {
-    name: "Miss Exposure",
-    objectType: "Camera",
-    tagline: "Always framing the moment like it owes her something.",
-  },
-  {
-    name: "Sir Foldsalot",
-    objectType: "Chair",
-    tagline: "Supportive in public. Dangerous in private conversation.",
-  },
-];
+export const dynamic = "force-dynamic";
 
-export default function Home() {
+export default async function Home() {
+  const publishedObjex = await listPublishedObjex();
+  const featuredObjex = publishedObjex.slice(0, 3);
+
   return (
     <div className="app-shell">
       <header className="sticky top-0 z-20 border-b border-[var(--color-border)]/80 bg-white/90 backdrop-blur-xl">
@@ -179,27 +167,42 @@ export default function Home() {
             </Link>
           </div>
           <div className="grid gap-4 md:grid-cols-3">
-            {teaserProfiles.map((profile) => (
-              <article
-                key={profile.name}
-                className="soft-shadow rounded-[1.75rem] border border-[var(--color-border)] bg-white p-5"
-              >
-                <div className="mb-5 flex items-center gap-3">
-                  <div className="h-12 w-12 rounded-2xl bg-[linear-gradient(135deg,#d9f7ff,#00aff0)]" />
-                  <div>
-                    <h3 className="font-display text-2xl font-semibold tracking-tight">
-                      {profile.name}
-                    </h3>
-                    <p className="text-sm text-[var(--color-text-soft)]">
-                      {profile.objectType}
-                    </p>
+            {featuredObjex.length > 0 ? (
+              featuredObjex.map((objex) => (
+                <Link
+                  key={objex.id}
+                  href={`/objex/${objex.id}`}
+                  className="soft-shadow rounded-[1.75rem] border border-[var(--color-border)] bg-white p-5 transition hover:-translate-y-0.5 hover:border-[var(--color-accent)]"
+                >
+                  <div className="mb-5 flex items-center gap-3">
+                    <div className="relative h-12 w-12 overflow-hidden rounded-2xl bg-[linear-gradient(135deg,#d9f7ff,#00aff0)]">
+                      <Image
+                        src={objex.imagePublicUrl}
+                        alt={objex.profile.name}
+                        fill
+                        className="object-cover"
+                        sizes="48px"
+                      />
+                    </div>
+                    <div>
+                      <h3 className="font-display text-2xl font-semibold tracking-tight">
+                        {objex.profile.name}
+                      </h3>
+                      <p className="text-sm text-[var(--color-text-soft)]">
+                        {objex.profile.objectType}
+                      </p>
+                    </div>
                   </div>
-                </div>
-                <p className="text-base leading-7 text-[var(--color-text-soft)]">
-                  {profile.tagline}
-                </p>
-              </article>
-            ))}
+                  <p className="text-base leading-7 text-[var(--color-text-soft)]">
+                    {objex.profile.tagline}
+                  </p>
+                </Link>
+              ))
+            ) : (
+              <div className="soft-shadow rounded-[1.75rem] border border-dashed border-[var(--color-border-strong)] bg-white p-6 text-[var(--color-text-soft)] md:col-span-3">
+                Publish an Objex and it will show up here instead of placeholder cards.
+              </div>
+            )}
           </div>
         </section>
       </main>

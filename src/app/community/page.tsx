@@ -4,6 +4,8 @@ import { BrandLogo } from "@/components/brand/brand-logo";
 import { CommunityBrowser } from "@/components/community/community-browser";
 import { listPublishedObjex } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 export default async function CommunityPage() {
   const publishedObjex = await listPublishedObjex();
 

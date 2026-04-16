@@ -4,6 +4,8 @@ import { BrandLogo } from "@/components/brand/brand-logo";
 import { SceneStudio } from "@/components/scenes/scene-studio";
 import { listAllObjex } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 export default async function ScenesPage() {
   const objexRoster = await listAllObjex();
 

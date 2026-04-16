@@ -4,6 +4,8 @@ import { BrandLogo } from "@/components/brand/brand-logo";
 import { ChemistryStudio } from "@/components/chemistry/chemistry-studio";
 import { listPublishedObjex } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 export default async function ChemistryPage() {
   const publishedObjex = await listPublishedObjex();
 
