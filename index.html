@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OnlyObjex — Coming Soon</title>
+    <meta name="description" content="Your favourite objects are about to start posting. Coming soon to onlyobjex.xyz">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: #0a0a0f;
+            color: #f0f0f0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(ellipse at 50% 50%, rgba(0, 212, 255, 0.06) 0%, transparent 60%);
+            animation: pulse 8s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+        }
+
+        .container {
+            text-align: center;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+            max-width: 600px;
+        }
+
+        .logo {
+            font-size: clamp(2.8rem, 8vw, 4.5rem);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #ffffff 0%, #00D4FF 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .tagline {
+            font-size: clamp(1.1rem, 3vw, 1.4rem);
+            font-weight: 300;
+            color: #c0c0c0;
+            line-height: 1.6;
+            margin-bottom: 2.5rem;
+        }
+
+        .domain {
+            display: inline-block;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #00D4FF;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 0.7rem 1.8rem;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 100px;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .domain::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 212, 255, 0.05);
+            border-radius: inherit;
+        }
+
+        .subtext {
+            font-size: 0.85rem;
+            color: #666;
+            font-weight: 400;
+            letter-spacing: 0.04em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="logo">OnlyObjex</h1>
+        <p class="tagline">Your favourite objects are about to start posting.</p>
+        <div class="domain">Coming soon to onlyobjex.xyz</div>
+        <p class="subtext">We're cooking something shameless.</p>
+    </div>
+</body>
+</html>
