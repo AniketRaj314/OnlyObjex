@@ -462,10 +462,10 @@ Important env vars:
 
 Current useful defaults:
 
-- `OPENAI_PROFILE_MODEL=gpt-5.4`
-- `OPENAI_SCENE_MODEL=gpt-5.4`
-- `OPENAI_VISION_MODEL=gpt-4.1-mini`
-- `OPENAI_VIDEO_MODEL=sora-2`
+- `OPENAI_PROFILE_MODEL=gpt-5.5`
+- `OPENAI_SCENE_MODEL=gpt-5.5`
+- `OPENAI_VISION_MODEL=gpt-5.5`
+- `OPENAI_VIDEO_MODEL=sora-2-pro`
 - `OPENAI_TTS_MODELS=gpt-4o-mini-tts,tts-1-hd`
 - `OPENAI_TTS_VOICES=coral,nova,shimmer,marin`
 

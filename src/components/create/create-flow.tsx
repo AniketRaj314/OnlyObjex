@@ -15,7 +15,7 @@ import {
 const loadingStages = [
   "Studying the object like it just walked into the room wearing trouble.",
   "Finding the useful details and loaded metaphors.",
-  "Letting GPT-5.4 write something dangerously self-aware.",
+  "Letting GPT-5.5 write something dangerously self-aware.",
   "Saving the scandal and preparing the reveal.",
 ];
 

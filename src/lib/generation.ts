@@ -3,7 +3,7 @@ import { fileToBase64 } from "@/lib/utils";
 import { env } from "@/lib/env";
 import { extractionJsonSchema, objexProfileJsonSchema } from "@/lib/objex-json-schema";
 import { createMockExtraction, createMockProfile } from "@/lib/mock-generation";
-import { getOpenAIClient } from "@/lib/openai";
+import { buildReasoningOptions, getOpenAIClient } from "@/lib/openai";
 import {
   extractionSchema,
   objexProfileSchema,
@@ -43,6 +43,7 @@ async function extractObjectFromImage(
   const client = getOpenAIClient();
   const response = await client.responses.create({
     model: env.openAiVisionModel,
+    ...buildReasoningOptions(env.openAiVisionModel, "medium"),
     input: [
       {
         role: "system",
@@ -96,6 +97,7 @@ async function generateObjexProfile(
 
     const response = await client.responses.create({
       model: env.openAiProfileModel,
+      ...buildReasoningOptions(env.openAiProfileModel, "high"),
       input: [
         {
           role: "system",

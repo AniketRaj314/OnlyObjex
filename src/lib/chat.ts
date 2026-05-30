@@ -1,6 +1,6 @@
 import type { ObjexChatMessage, ObjexProfile } from "@/lib/schemas/objex";
 import { env } from "@/lib/env";
-import { getOpenAIClient } from "@/lib/openai";
+import { buildReasoningOptions, getOpenAIClient } from "@/lib/openai";
 import { resolveObjexVoiceProfile } from "@/lib/voice-profile";
 
 function getTextResponse(response: { output_text?: string | null }) {
@@ -52,6 +52,7 @@ export async function generateObjexChatReply(params: {
   const client = getOpenAIClient();
   const response = await client.responses.create({
     model: env.openAiProfileModel,
+    ...buildReasoningOptions(env.openAiProfileModel, "medium"),
     input: [
       {
         role: "system",
@@ -121,6 +122,7 @@ export async function summarizeObjexChatMemory(params: {
   const client = getOpenAIClient();
   const response = await client.responses.create({
     model: env.openAiProfileModel,
+    ...buildReasoningOptions(env.openAiProfileModel, "low"),
     input: [
       {
         role: "system",

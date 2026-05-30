@@ -31,10 +31,10 @@ For Vercel, use hosted mode.
 Set these in Vercel:
 
 - `OPENAI_API_KEY`
-- `OPENAI_PROFILE_MODEL=gpt-5.4`
-- `OPENAI_SCENE_MODEL=gpt-5.4`
-- `OPENAI_VIDEO_MODEL=sora-2`
-- `OPENAI_VISION_MODEL=gpt-4.1-mini`
+- `OPENAI_PROFILE_MODEL=gpt-5.5`
+- `OPENAI_SCENE_MODEL=gpt-5.5`
+- `OPENAI_VIDEO_MODEL=sora-2-pro`
+- `OPENAI_VISION_MODEL=gpt-5.5`
 - `OPENAI_TTS_MODELS=gpt-4o-mini-tts,tts-1-hd`
 - `OPENAI_TTS_VOICES=coral,nova,shimmer,marin`
 - `NEXT_PUBLIC_APP_URL=<your deployed Vercel URL>`

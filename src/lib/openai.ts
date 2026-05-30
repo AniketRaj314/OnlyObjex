@@ -3,6 +3,8 @@ import { env } from "@/lib/env";
 
 let client: OpenAI | undefined;
 
+type ReasoningEffort = "none" | "low" | "medium" | "high" | "xhigh";
+
 export function getOpenAIClient() {
   if (!env.openAiApiKey) {
     throw new Error(
@@ -15,4 +17,23 @@ export function getOpenAIClient() {
   }
 
   return client;
+}
+
+function modelSupportsReasoningEffort(model: string) {
+  return model.startsWith("gpt-5");
+}
+
+export function buildReasoningOptions(
+  model: string,
+  effort: ReasoningEffort,
+) {
+  if (!modelSupportsReasoningEffort(model)) {
+    return {};
+  }
+
+  return {
+    reasoning: {
+      effort,
+    },
+  };
 }

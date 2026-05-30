@@ -1,5 +1,5 @@
 import { env } from "@/lib/env";
-import { getOpenAIClient } from "@/lib/openai";
+import { buildReasoningOptions, getOpenAIClient } from "@/lib/openai";
 import { scenePlannerJsonSchema } from "@/lib/objex-json-schema";
 import { ZodError } from "zod";
 import type {
@@ -166,6 +166,7 @@ export async function generateScenePlan(params: {
 
     const response = await client.responses.create({
       model: env.openAiSceneModel,
+      ...buildReasoningOptions(env.openAiSceneModel, "high"),
       input: [
         {
           role: "system",

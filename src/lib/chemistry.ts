@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { chemistrySceneJsonSchema } from "@/lib/objex-json-schema";
 import { env } from "@/lib/env";
-import { getOpenAIClient } from "@/lib/openai";
+import { buildReasoningOptions, getOpenAIClient } from "@/lib/openai";
 import type {
   ChemistryConversationResponse,
   ChemistryParticipant,
@@ -125,6 +125,7 @@ export async function generateObjexChemistryScene(params: {
   const client = getOpenAIClient();
   const response = await client.responses.create({
     model: env.openAiProfileModel,
+    ...buildReasoningOptions(env.openAiProfileModel, "high"),
     input: [
       {
         role: "system",
